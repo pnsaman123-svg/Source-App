@@ -36,8 +36,8 @@ const TABS: TabDef[] = [
   },
   {
     key: 'service',
-    label: 'Service',
-    icon: (color) => <MaterialCommunityIcons name="toolbox-outline" size={24} color={color} />,
+    label: 'Settings',
+    icon: (color) => <Ionicons name="settings-outline" size={22} color={color} />,
   },
   {
     key: 'profile',
