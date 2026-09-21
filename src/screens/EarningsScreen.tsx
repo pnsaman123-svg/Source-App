@@ -16,6 +16,7 @@ import { Colors } from '../theme/colors';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type TimeframeType = 'day' | 'week' | 'month';
+type ChartModeType = 'netGrid' | 'gridEnergy' | 'earnings' | 'carbon';
 
 interface EarningsScreenProps {
   onBack?: () => void;
@@ -37,16 +38,14 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
   sellPrice = 3.0,
 }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeType>('week');
-  const [selectedPointIndex, setSelectedPointIndex] = useState<number>(1); // default 12h selected
+  const [chartMode, setChartMode] = useState<ChartModeType>('gridEnergy'); // 'gridEnergy' (2132:2261) or 'netGrid' (2125:1286)
+  const [selectedNetGridIndex, setSelectedNetGridIndex] = useState<number>(1);
+  const [selectedGridEnergyIndex, setSelectedGridEnergyIndex] = useState<number>(3); // Day 19 default peak
 
-  // Chart data per timeframe
-  const chartData = {
+  // Net Grid (Figma 2125:1286) data
+  const netGridData = {
     day: {
-      netGrid: '2.68 kWh',
-      gridExport: '0.042 MWh',
-      earnings: '₹38',
-      carbon: '1.75 Tons',
-      activeTooltip: '1.2 kWh',
+      tooltip: '1.2 kWh',
       bars: [
         { label: '0', exportVal: 0.4, importVal: 0.2 },
         { label: '6', exportVal: 1.2, importVal: 0.1 },
@@ -56,11 +55,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
       ],
     },
     week: {
-      netGrid: `${netGridKwh} kWh`,
-      gridExport: `${gridExportMwh} MWh`,
-      earnings: `₹${earningsInr}`,
-      carbon: `${carbonTons} Tons`,
-      activeTooltip: '1 kWh',
+      tooltip: '1 kWh',
       bars: [
         { label: '0', exportVal: 0.6, importVal: 0.4 },
         { label: '6', exportVal: 1.8, importVal: 0.2 },
@@ -70,11 +65,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
       ],
     },
     month: {
-      netGrid: '84.5 kWh',
-      gridExport: '1.14 MWh',
-      earnings: '₹620',
-      carbon: '52.4 Tons',
-      activeTooltip: '3.4 kWh',
+      tooltip: '3.4 kWh',
       bars: [
         { label: 'W1', exportVal: 2.4, importVal: 0.8 },
         { label: 'W2', exportVal: 3.6, importVal: 0.5 },
@@ -85,7 +76,48 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
     },
   };
 
-  const currentData = chartData[selectedTimeframe];
+  // Grid Energy (Figma 2132:2261) continuous curve data
+  const gridEnergyData = {
+    day: {
+      tooltip: '2.4 kWh',
+      yMax: 8,
+      points: [
+        { label: '00', val: 1.2, isForecast: false },
+        { label: '06', val: 3.1, isForecast: false },
+        { label: '12', val: 6.2, isForecast: false },
+        { label: '16', val: 5.4, isForecast: false },
+        { label: '20', val: 2.8, isForecast: true },
+        { label: '24', val: 1.1, isForecast: true },
+      ],
+    },
+    week: {
+      tooltip: '6.9 kWh',
+      yMax: 8,
+      points: [
+        { label: '1', val: 2.2, isForecast: false },
+        { label: '7', val: 4.8, isForecast: false },
+        { label: '13', val: 5.9, isForecast: false },
+        { label: '19', val: 6.9, isForecast: false },
+        { label: '25', val: 5.3, isForecast: true },
+        { label: '31', val: 3.6, isForecast: true },
+      ],
+    },
+    month: {
+      tooltip: '7.8 kWh',
+      yMax: 8,
+      points: [
+        { label: '1', val: 3.0, isForecast: false },
+        { label: '7', val: 5.2, isForecast: false },
+        { label: '13', val: 6.4, isForecast: false },
+        { label: '19', val: 7.8, isForecast: false },
+        { label: '25', val: 6.1, isForecast: true },
+        { label: '31', val: 4.2, isForecast: true },
+      ],
+    },
+  };
+
+  const currentNetGrid = netGridData[selectedTimeframe];
+  const currentGridEnergy = gridEnergyData[selectedTimeframe];
 
   return (
     <View style={styles.root}>
@@ -97,7 +129,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
       />
 
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        {/* Header - Matches Figma Node 2125:1682 */}
+        {/* Header - Matches Figma Node 2132:2281 / 2125:1682 */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -118,7 +150,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2133:255 */}
+          {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2132:2289 */}
           <View style={styles.tabContainer}>
             <View style={styles.segmentedTabs}>
               {(['day', 'week', 'month'] as TimeframeType[]).map((tab) => {
@@ -148,209 +180,337 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
             </View>
           </View>
 
-          {/* Net Grid Chart Card - Matches Figma Node 2132:2165 */}
-          <View style={styles.chartCard}>
-            {/* Chart Card Header */}
-            <View style={styles.chartHeaderRow}>
-              <Text style={styles.chartTitle}>NET GRID</Text>
-              <View style={styles.batteryIconBadge}>
-                <MaterialCommunityIcons
-                  name="battery-charging-medium"
-                  size={22}
-                  color="#1A1A1A"
-                />
-              </View>
-            </View>
-
-            {/* Interactive Graph Display */}
-            <View style={styles.graphContainer}>
-              {/* Tooltip badge */}
-              <View style={[styles.tooltipContainer, { left: 88 }]}>
-                <View style={styles.tooltipPill}>
-                  <Text style={styles.tooltipText}>{currentData.activeTooltip}</Text>
-                </View>
-                <View style={styles.tooltipLine} />
-              </View>
-
-              {/* Graph Grid Lines and Y-Axis Labels */}
-              <View style={styles.gridLinesContainer}>
-                {/* Horizontal guide lines */}
-                <View style={[styles.gridLineRow, { top: 10 }]}>
-                  <View style={styles.gridLine} />
-                  <Text style={styles.yAxisText}>Imported</Text>
-                </View>
-                <View style={[styles.gridLineRow, { top: 32 }]}>
-                  <View style={styles.gridLine} />
-                  <Text style={styles.yAxisText}>4 kW</Text>
-                </View>
-                <View style={[styles.gridLineRow, { top: 62 }]}>
-                  <View style={styles.gridLine} />
-                  <Text style={styles.yAxisText}>2 kW</Text>
-                </View>
-                <View style={[styles.gridLineRow, { top: 92 }]}>
-                  <View style={[styles.gridLine, styles.gridLineZero]} />
-                  <Text style={styles.yAxisText}>0 kW</Text>
-                </View>
-                <View style={[styles.gridLineRow, { top: 122 }]}>
-                  <View style={styles.gridLine} />
-                  <Text style={styles.yAxisText}>2 kW</Text>
-                </View>
-                <View style={[styles.gridLineRow, { top: 152 }]}>
-                  <View style={styles.gridLine} />
-                  <Text style={styles.yAxisText}>4 kW</Text>
+          {/* MAIN CHART CARD */}
+          {chartMode === 'gridEnergy' ? (
+            /* ================= GRID ENERGY CHART (Figma Node 2132:2261) ================= */
+            <View style={styles.chartCard}>
+              {/* Header: Grid Energy + Transmission Tower Icon */}
+              <View style={styles.chartHeaderRow}>
+                <Text style={styles.chartTitle}>GRID ENERGY</Text>
+                <View style={styles.batteryIconBadge}>
+                  <MaterialCommunityIcons
+                    name="transmission-tower"
+                    size={22}
+                    color="#1A1A1A"
+                  />
                 </View>
               </View>
 
-              {/* Energy Waves Visual Graphic */}
-              <View style={styles.chartVisualArea}>
-                {currentData.bars.map((item, idx) => {
-                  const isSelected = idx === selectedPointIndex;
-                  const exportHeight = (item.exportVal / 4.0) * 70;
-                  const importHeight = (item.importVal / 4.0) * 55;
+              {/* Continuous Grid Energy Chart Area */}
+              <View style={styles.gridEnergyChartContainer}>
+                {/* Horizontal Guide Lines */}
+                <View style={styles.gridLinesContainer}>
+                  {[8, 6, 4, 2, 0].map((val, i) => (
+                    <View key={val} style={[styles.gridLineRow, { top: i * 44 }]}>
+                      <View style={[styles.gridLine, val === 0 && styles.gridLineZero]} />
+                      <Text style={styles.yAxisText}>{val}</Text>
+                    </View>
+                  ))}
+                  <Text style={styles.unitLabel}>kWh</Text>
+                </View>
 
-                  return (
-                    <TouchableOpacity
-                      key={idx}
-                      style={styles.chartColumn}
-                      activeOpacity={0.8}
-                      onPress={() => setSelectedPointIndex(idx)}
-                    >
-                      {/* Export Bar (Upper - Green/Blue gradient) */}
-                      <View style={styles.exportBarWrapper}>
-                        <LinearGradient
-                          colors={
-                            isSelected
-                              ? ['#007AFE', '#60A5FA', 'rgba(96,165,250,0.15)']
-                              : ['rgba(0,122,254,0.6)', 'rgba(96,165,250,0.3)', 'transparent']
-                          }
-                          start={{ x: 0.5, y: 0 }}
-                          end={{ x: 0.5, y: 1 }}
-                          style={[
-                            styles.barPill,
-                            { height: Math.max(exportHeight, 14) },
-                          ]}
-                        />
-                      </View>
+                {/* Interactive Curve & Gradient Wave Area */}
+                <View style={styles.curveAreaWrapper}>
+                  {currentGridEnergy.points.map((point, idx) => {
+                    const isSelected = idx === selectedGridEnergyIndex;
+                    const pointHeight = (point.val / 8.0) * 160;
 
-                      {/* Zero baseline separator */}
-                      <View
-                        style={[
-                          styles.columnCenterDot,
-                          isSelected && styles.columnCenterDotActive,
-                        ]}
-                      />
-
-                      {/* Import Bar (Lower - Amber/Red gradient) */}
-                      <View style={styles.importBarWrapper}>
-                        <LinearGradient
-                          colors={
-                            isSelected
-                              ? ['rgba(245,158,11,0.2)', '#F59E0B', '#D97706']
-                              : ['transparent', 'rgba(245,158,11,0.3)', 'rgba(245,158,11,0.6)']
-                          }
-                          start={{ x: 0.5, y: 0 }}
-                          end={{ x: 0.5, y: 1 }}
-                          style={[
-                            styles.barPill,
-                            { height: Math.max(importHeight, 8) },
-                          ]}
-                        />
-                      </View>
-
-                      {/* X-Axis Label */}
-                      <Text
-                        style={[
-                          styles.xAxisLabel,
-                          isSelected && styles.xAxisLabelActive,
-                        ]}
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={styles.curveColumn}
+                        activeOpacity={0.8}
+                        onPress={() => setSelectedGridEnergyIndex(idx)}
                       >
-                        {item.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                        {/* Tooltip & Highlight point on selected / peak node */}
+                        {isSelected && (
+                          <View
+                            style={[
+                              styles.curveHighlightWrapper,
+                              { bottom: pointHeight + 4 },
+                            ]}
+                          >
+                            <View style={styles.gridEnergyTooltipPill}>
+                              <Text style={styles.tooltipText}>{point.val} kWh</Text>
+                            </View>
+                            {/* Glowing Target Ring */}
+                            <View style={styles.outerGlowRing}>
+                              <View style={styles.innerGlowDot} />
+                            </View>
+                          </View>
+                        )}
+
+                        {/* Column Gradient / Area Fill */}
+                        <View style={styles.areaFillWrapper}>
+                          <LinearGradient
+                            colors={
+                              point.isForecast
+                                ? ['rgba(0, 122, 254, 0.25)', 'rgba(96, 165, 250, 0.08)', 'transparent']
+                                : isSelected
+                                ? ['#007AFE', 'rgba(96, 165, 250, 0.45)', 'rgba(217, 229, 255, 0.1)']
+                                : ['rgba(0, 122, 254, 0.55)', 'rgba(96, 165, 250, 0.2)', 'transparent']
+                            }
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                            style={[
+                              styles.areaBarPill,
+                              point.isForecast && styles.forecastBorder,
+                              { height: Math.max(pointHeight, 18) },
+                            ]}
+                          />
+                        </View>
+
+                        {/* Forecast indicator line */}
+                        {point.isForecast && (
+                          <View style={styles.forecastTagRow}>
+                            <View style={styles.forecastDash} />
+                          </View>
+                        )}
+
+                        {/* X-Axis Day/Time Label */}
+                        <Text
+                          style={[
+                            styles.gridEnergyXLabel,
+                            isSelected && styles.xAxisLabelActive,
+                          ]}
+                        >
+                          {point.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
             </View>
-
-            {/* Pricing Section (Buy Price & Sell Price) - Matches Figma Node 2132:2251 */}
-            <View style={styles.pricingRow}>
-              {/* Buy Price */}
-              <View style={styles.priceItem}>
-                <View style={styles.priceLabelRow}>
-                  <View style={[styles.priceDot, { backgroundColor: '#10B981' }]} />
-                  <Text style={styles.priceLabel}>Buy Price</Text>
-                </View>
-                <View style={styles.priceValueRow}>
-                  <Text style={styles.priceValue}>₹{buyPrice}</Text>
-                  <Text style={styles.priceUnit}>/kWh</Text>
+          ) : (
+            /* ================= NET GRID CHART (Figma Node 2125:1286) ================= */
+            <View style={styles.chartCard}>
+              {/* Header: Net Grid + Battery Icon */}
+              <View style={styles.chartHeaderRow}>
+                <Text style={styles.chartTitle}>NET GRID</Text>
+                <View style={styles.batteryIconBadge}>
+                  <MaterialCommunityIcons
+                    name="battery-charging-medium"
+                    size={22}
+                    color="#1A1A1A"
+                  />
                 </View>
               </View>
 
-              {/* Sell Price */}
-              <View style={[styles.priceItem, { alignItems: 'flex-end' }]}>
-                <View style={styles.priceLabelRow}>
-                  <View style={[styles.priceDot, { backgroundColor: '#F59E0B' }]} />
-                  <Text style={styles.priceLabel}>Sell Price</Text>
+              {/* Net Grid Interactive Display */}
+              <View style={styles.graphContainer}>
+                {/* Tooltip badge */}
+                <View style={[styles.tooltipContainer, { left: 88 }]}>
+                  <View style={styles.tooltipPill}>
+                    <Text style={styles.tooltipText}>{currentNetGrid.tooltip}</Text>
+                  </View>
+                  <View style={styles.tooltipLine} />
                 </View>
-                <View style={styles.priceValueRow}>
-                  <Text style={styles.priceValue}>₹{sellPrice}</Text>
-                  <Text style={styles.priceUnit}>/kWh</Text>
+
+                {/* Grid lines and Y-Axis Labels */}
+                <View style={styles.gridLinesContainer}>
+                  <View style={[styles.gridLineRow, { top: 10 }]}>
+                    <View style={styles.gridLine} />
+                    <Text style={styles.yAxisText}>Imported</Text>
+                  </View>
+                  <View style={[styles.gridLineRow, { top: 32 }]}>
+                    <View style={styles.gridLine} />
+                    <Text style={styles.yAxisText}>4 kW</Text>
+                  </View>
+                  <View style={[styles.gridLineRow, { top: 62 }]}>
+                    <View style={styles.gridLine} />
+                    <Text style={styles.yAxisText}>2 kW</Text>
+                  </View>
+                  <View style={[styles.gridLineRow, { top: 92 }]}>
+                    <View style={[styles.gridLine, styles.gridLineZero]} />
+                    <Text style={styles.yAxisText}>0 kW</Text>
+                  </View>
+                  <View style={[styles.gridLineRow, { top: 122 }]}>
+                    <View style={styles.gridLine} />
+                    <Text style={styles.yAxisText}>2 kW</Text>
+                  </View>
+                  <View style={[styles.gridLineRow, { top: 152 }]}>
+                    <View style={styles.gridLine} />
+                    <Text style={styles.yAxisText}>4 kW</Text>
+                  </View>
+                </View>
+
+                {/* Energy Waves Visual Graphic */}
+                <View style={styles.chartVisualArea}>
+                  {currentNetGrid.bars.map((item, idx) => {
+                    const isSelected = idx === selectedNetGridIndex;
+                    const exportHeight = (item.exportVal / 4.0) * 70;
+                    const importHeight = (item.importVal / 4.0) * 55;
+
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={styles.chartColumn}
+                        activeOpacity={0.8}
+                        onPress={() => setSelectedNetGridIndex(idx)}
+                      >
+                        {/* Export Bar */}
+                        <View style={styles.exportBarWrapper}>
+                          <LinearGradient
+                            colors={
+                              isSelected
+                                ? ['#007AFE', '#60A5FA', 'rgba(96,165,250,0.15)']
+                                : ['rgba(0,122,254,0.6)', 'rgba(96,165,250,0.3)', 'transparent']
+                            }
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                            style={[
+                              styles.barPill,
+                              { height: Math.max(exportHeight, 14) },
+                            ]}
+                          />
+                        </View>
+
+                        {/* Baseline dot */}
+                        <View
+                          style={[
+                            styles.columnCenterDot,
+                            isSelected && styles.columnCenterDotActive,
+                          ]}
+                        />
+
+                        {/* Import Bar */}
+                        <View style={styles.importBarWrapper}>
+                          <LinearGradient
+                            colors={
+                              isSelected
+                                ? ['rgba(245,158,11,0.2)', '#F59E0B', '#D97706']
+                                : ['transparent', 'rgba(245,158,11,0.3)', 'rgba(245,158,11,0.6)']
+                            }
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                            style={[
+                              styles.barPill,
+                              { height: Math.max(importHeight, 8) },
+                            ]}
+                          />
+                        </View>
+
+                        <Text
+                          style={[
+                            styles.xAxisLabel,
+                            isSelected && styles.xAxisLabelActive,
+                          ]}
+                        >
+                          {item.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Pricing Section (Buy Price & Sell Price) */}
+              <View style={styles.pricingRow}>
+                <View style={styles.priceItem}>
+                  <View style={styles.priceLabelRow}>
+                    <View style={[styles.priceDot, { backgroundColor: '#10B981' }]} />
+                    <Text style={styles.priceLabel}>Buy Price</Text>
+                  </View>
+                  <View style={styles.priceValueRow}>
+                    <Text style={styles.priceValue}>₹{buyPrice}</Text>
+                    <Text style={styles.priceUnit}>/kWh</Text>
+                  </View>
+                </View>
+
+                <View style={[styles.priceItem, { alignItems: 'flex-end' }]}>
+                  <View style={styles.priceLabelRow}>
+                    <View style={[styles.priceDot, { backgroundColor: '#F59E0B' }]} />
+                    <Text style={styles.priceLabel}>Sell Price</Text>
+                  </View>
+                  <View style={styles.priceValueRow}>
+                    <Text style={styles.priceValue}>₹{sellPrice}</Text>
+                    <Text style={styles.priceUnit}>/kWh</Text>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
+          )}
 
-          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4543 */}
+          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4579 / 2136:4543 */}
           <View style={styles.categoryCardContainer}>
             <View style={styles.categoryGrid}>
               {/* Row 1 */}
               <View style={styles.categoryRow}>
                 {/* 1. Net Grid */}
-                <View style={styles.metricCard}>
+                <TouchableOpacity
+                  style={[
+                    styles.metricCard,
+                    chartMode === 'netGrid' && styles.metricCardActive,
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => setChartMode('netGrid')}
+                >
                   <View style={styles.metricIconBox}>
                     <Feather name="zap" size={20} color="#007AFF" />
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Net Grid</Text>
-                    <Text style={styles.metricValue}>{currentData.netGrid}</Text>
+                    <Text style={styles.metricValue}>{netGridKwh} kWh</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
 
-                {/* 2. Grid Export */}
-                <View style={styles.metricCard}>
+                {/* 2. Grid Export / Grid Energy */}
+                <TouchableOpacity
+                  style={[
+                    styles.metricCard,
+                    chartMode === 'gridEnergy' && styles.metricCardActive,
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => setChartMode('gridEnergy')}
+                >
                   <View style={styles.metricIconBox}>
                     <Feather name="power" size={20} color="#007AFF" />
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Grid Export</Text>
-                    <Text style={styles.metricValue}>{currentData.gridExport}</Text>
+                    <Text style={styles.metricValue}>{gridExportMwh} MWh</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               </View>
 
               {/* Row 2 */}
               <View style={styles.categoryRow}>
                 {/* 3. Earnings */}
-                <View style={styles.metricCard}>
+                <TouchableOpacity
+                  style={[
+                    styles.metricCard,
+                    chartMode === 'earnings' && styles.metricCardActive,
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => setChartMode('netGrid')}
+                >
                   <View style={styles.metricIconBox}>
                     <Ionicons name="wallet-outline" size={20} color="#F59E0B" />
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Earnings</Text>
-                    <Text style={styles.metricValue}>{currentData.earnings}</Text>
+                    <Text style={styles.metricValue}>₹{earningsInr}</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
 
                 {/* 4. Carbon */}
-                <View style={styles.metricCard}>
+                <TouchableOpacity
+                  style={[
+                    styles.metricCard,
+                    chartMode === 'carbon' && styles.metricCardActive,
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => setChartMode('gridEnergy')}
+                >
                   <View style={styles.metricIconBox}>
                     <Ionicons name="leaf-outline" size={20} color="#10B981" />
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Carbon</Text>
-                    <Text style={styles.metricValue}>{currentData.carbon}</Text>
+                    <Text style={styles.metricValue}>{carbonTons} Tons</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -454,6 +614,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
+    minHeight: 320,
   },
   chartHeaderRow: {
     flexDirection: 'row',
@@ -474,6 +635,103 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Grid Energy Specific Styles
+  gridEnergyChartContainer: {
+    height: 234,
+    position: 'relative',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  unitLabel: {
+    position: 'absolute',
+    right: 0,
+    bottom: -6,
+    fontSize: 9,
+    color: 'rgba(36, 51, 86, 0.4)',
+    fontWeight: '500',
+  },
+  curveAreaWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingRight: 40,
+    height: 190,
+    alignItems: 'flex-end',
+    zIndex: 5,
+  },
+  curveColumn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: '100%',
+    position: 'relative',
+  },
+  curveHighlightWrapper: {
+    position: 'absolute',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  gridEnergyTooltipPill: {
+    backgroundColor: '#007AFE',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginBottom: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  outerGlowRing: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0, 122, 254, 0.25)',
+    borderWidth: 2,
+    borderColor: '#007AFE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  innerGlowDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FFFFFF',
+  },
+  areaFillWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  areaBarPill: {
+    width: 20,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+  },
+  forecastBorder: {
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 122, 254, 0.4)',
+  },
+  forecastTagRow: {
+    marginTop: 2,
+    alignItems: 'center',
+  },
+  forecastDash: {
+    width: 8,
+    height: 2,
+    backgroundColor: 'rgba(0, 122, 254, 0.3)',
+    borderRadius: 1,
+  },
+  gridEnergyXLabel: {
+    fontSize: 10,
+    color: 'rgba(36, 51, 86, 0.4)',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  // Net Grid Specific Styles
   graphContainer: {
     height: 195,
     position: 'relative',
@@ -541,7 +799,7 @@ const styles = StyleSheet.create({
   chartVisualArea: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingRight: 55, // space for Y-axis text
+    paddingRight: 55,
     height: '100%',
     alignItems: 'center',
   },
@@ -664,6 +922,16 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 1,
   },
+  metricCardActive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#007AFE',
+    borderWidth: 1.5,
+    shadowColor: '#007AFE',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
   metricIconBox: {
     width: 32,
     height: 32,
@@ -684,3 +952,4 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
 });
+
