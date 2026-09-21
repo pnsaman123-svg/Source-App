@@ -252,8 +252,9 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2136:2870 */}
-          <View style={styles.tabContainer}>
+          <View style={styles.topSection}>
+            {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2136:2870 */}
+            <View style={styles.tabContainer}>
             <View style={styles.segmentedTabs}>
               {(['day', 'week', 'month'] as TimeframeType[]).map((tab) => {
                 const isSelected = selectedTimeframe === tab;
@@ -718,6 +719,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
               </View>
             </View>
           )}
+          </View>
 
           {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4633 */}
           <View style={styles.categoryCardContainer}>
@@ -857,10 +859,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
     paddingTop: 12,
-    paddingBottom: 130, // Clearance for floating tab bar
+    flexGrow: 1,
+  },
+  topSection: {
+    paddingHorizontal: 24,
     gap: 20,
+    marginBottom: 24,
   },
   tabContainer: {
     width: '100%',
@@ -1188,15 +1193,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245, 245, 247, 0.75)',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     borderWidth: 0.5,
+    borderBottomWidth: 0,
     borderColor: 'rgba(255, 255, 255, 0.5)',
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 140, // Extends all the way behind & below the floating navigation bar
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 3,
+    flexGrow: 1,
   },
   categoryGrid: {
     gap: 12,
