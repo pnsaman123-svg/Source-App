@@ -11,6 +11,7 @@ import { BatterySocScreen } from './src/screens/BatterySocScreen';
 import { SourceMonitoringScreen } from './src/screens/SourceMonitoringScreen';
 import { LoadConsumptionScreen } from './src/screens/LoadConsumptionScreen';
 import { EarningsScreen } from './src/screens/EarningsScreen';
+import { DeviceManagementScreen } from './src/screens/DeviceManagementScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
@@ -107,6 +108,9 @@ export default function App() {
         if (serviceSubScreen === 'general') {
           return <AnalyticsScreen onBack={() => setServiceSubScreen('menu')} />;
         }
+        if (serviceSubScreen === 'device') {
+          return <DeviceManagementScreen onBack={() => setServiceSubScreen('menu')} />;
+        }
         return (
           <ControlSettingsScreen
             onBack={() => setActiveTab('home')}
@@ -117,9 +121,7 @@ export default function App() {
             onNavigateToFirmware={() =>
               Alert.alert('Firmware & Software', 'Your inverter firmware is up to date (v2.4.1).')
             }
-            onNavigateToDeviceManagement={() =>
-              Alert.alert('Device Management', '1 Inverter, 1 Battery Pack, 1 Clean Tech Robot connected.')
-            }
+            onNavigateToDeviceManagement={() => setServiceSubScreen('device')}
           />
         );
       case 'profile':
