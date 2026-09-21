@@ -737,7 +737,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Feather name="zap" size={22} color="#1A1A1A" />
+                      <Feather name="zap" size={24} color="#007AFE" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -757,7 +757,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Feather name="power" size={22} color="#1A1A1A" />
+                      <Feather name="power" size={24} color="#007AFE" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -780,7 +780,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Ionicons name="wallet-outline" size={22} color="#1A1A1A" />
+                      <Ionicons name="wallet-outline" size={24} color="#FFB800" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -800,7 +800,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Ionicons name="leaf-outline" size={22} color="#1A1A1A" />
+                      <Ionicons name="leaf-outline" size={24} color="#34C759" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -1190,22 +1190,22 @@ const styles = StyleSheet.create({
     color: '#9E9EA0',
   },
   categoryCardContainer: {
-    backgroundColor: 'rgba(245, 245, 247, 0.75)',
+    backgroundColor: '#EFF0F4',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     borderWidth: 0.5,
     borderBottomWidth: 0,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderColor: 'rgba(255, 255, 255, 0.6)',
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 24,
     paddingBottom: 140, // Extends all the way behind & below the floating navigation bar
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 10,
-    elevation: 3,
+    elevation: 2,
     flexGrow: 1,
   },
   categoryGrid: {
@@ -1217,17 +1217,17 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
     borderWidth: 0.5,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderColor: 'rgba(255, 255, 255, 0.8)',
     padding: 16,
     gap: 22,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 3,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 5,
+    elevation: 2,
   },
   metricCardActive: {
     backgroundColor: '#FFFFFF',
@@ -1235,7 +1235,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     shadowColor: '#007AFE',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -1352,9 +1352,9 @@ const styles = StyleSheet.create({
   },
   metricCardActiveGreen: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#10B981',
+    borderColor: '#34C759',
     borderWidth: 1.5,
-    shadowColor: '#10B981',
+    shadowColor: '#34C759',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
