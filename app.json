@@ -14,6 +14,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.source.smartenergy",
       "adaptiveIcon": {
         "backgroundColor": "#EBEEF2"
       }
