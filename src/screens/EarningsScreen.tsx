@@ -728,10 +728,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
               <View style={styles.categoryRow}>
                 {/* 1. Net Grid */}
                 <TouchableOpacity
-                  style={[
-                    styles.metricCard,
-                    chartMode === 'netGrid' && styles.metricCardActive,
-                  ]}
+                  style={styles.metricCard}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('netGrid')}
                 >
@@ -748,10 +745,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
 
                 {/* 2. Grid Export / Grid Energy */}
                 <TouchableOpacity
-                  style={[
-                    styles.metricCard,
-                    chartMode === 'gridEnergy' && styles.metricCardActive,
-                  ]}
+                  style={styles.metricCard}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('gridEnergy')}
                 >
@@ -771,10 +765,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
               <View style={styles.categoryRow}>
                 {/* 3. Earnings */}
                 <TouchableOpacity
-                  style={[
-                    styles.metricCard,
-                    chartMode === 'earnings' && styles.metricCardActive,
-                  ]}
+                  style={styles.metricCard}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('earnings')}
                 >
@@ -791,10 +782,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
 
                 {/* 4. Carbon */}
                 <TouchableOpacity
-                  style={[
-                    styles.metricCard,
-                    chartMode === 'carbon' && styles.metricCardActive,
-                  ]}
+                  style={styles.metricCard}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('carbon')}
                 >
@@ -1210,15 +1198,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
     padding: 16,
     gap: 22,
-  },
-  metricCardActive: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#1A1A1A',
-    borderWidth: 1.5,
   },
   // Earnings Chart Specific Styles
   earningsChartContainer: {
@@ -1320,16 +1303,6 @@ const styles = StyleSheet.create({
   earningsXLabelActive: {
     color: '#D97706',
     fontWeight: '700',
-  },
-  metricCardActiveAmber: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#1A1A1A',
-    borderWidth: 1.5,
-  },
-  metricCardActiveGreen: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#1A1A1A',
-    borderWidth: 1.5,
   },
   // Carbon Emission Specific Styles
   carbonChartContainer: {
