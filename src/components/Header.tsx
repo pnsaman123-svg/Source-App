@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import { useResponsive } from '../utils/responsive';
 
 interface HeaderProps {
   userName?: string;
@@ -14,11 +15,18 @@ export const Header: React.FC<HeaderProps> = ({
   onPressNotifications,
   onPressSettings,
 }) => {
+  const { horizontalPadding, isSmallScreen } = useResponsive();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingHorizontal: horizontalPadding }]}>
       <View style={styles.textContainer}>
         <Text style={styles.welcomeText}>Welcome back,</Text>
-        <Text style={styles.userNameText}>{userName}</Text>
+        <Text
+          style={[styles.userNameText, isSmallScreen && { fontSize: 20 }]}
+          numberOfLines={1}
+        >
+          {userName}
+        </Text>
       </View>
 
       <View style={styles.actionsContainer}>

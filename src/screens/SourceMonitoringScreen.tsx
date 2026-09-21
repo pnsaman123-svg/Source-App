@@ -5,16 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Dimensions,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const DIAGRAM_WIDTH = SCREEN_WIDTH - 32;
+import { useResponsive } from '../utils/responsive';
 
 interface SourceMonitoringScreenProps {
   onBack?: () => void;
@@ -31,6 +27,8 @@ export const SourceMonitoringScreen: React.FC<SourceMonitoringScreenProps> = ({
   gridKw = -1,
   loadKw = 4.5,
 }) => {
+  const { width, horizontalPadding, isSmallScreen } = useResponsive();
+  const diagramWidth = Math.min(width - horizontalPadding * 2, 480);
   const [lastRefreshed, setLastRefreshed] = useState('Mon, Jun 9 • 10:42 AM');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -80,7 +78,7 @@ export const SourceMonitoringScreen: React.FC<SourceMonitoringScreenProps> = ({
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingHorizontal: horizontalPadding }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Timestamp & Refresh Row - Matches Figma Node 2071:978 */}
@@ -99,27 +97,34 @@ export const SourceMonitoringScreen: React.FC<SourceMonitoringScreenProps> = ({
             </TouchableOpacity>
           </View>
 
-          {/* Power Flow Diagram Container - Matches Figma Node 2071:982 */}
-          <View style={styles.diagramCard}>
-            {/* Top Flow Connecting Tracks */}
+          {/* Large Detailed Power Flow Diagram - Matches Figma Node 2065:704 */}
+          <View style={[styles.diagramWrapper, { width: diagramWidth }]}>
+            {/* Top Flow Connecting Tracks (Figma Node 2065:705) */}
             <View style={styles.topTracksContainer} pointerEvents="none">
+              {/* Left Track (Solar -> Inverter) */}
               <View style={styles.trackTopLeft} />
+              {/* Active Blue Flow Pulse (Solar) */}
               <View style={styles.pulseTopLeft} />
 
+              {/* Right Track (Battery <-> Inverter) */}
               <View style={styles.trackTopRight} />
+              {/* Active Blue Flow Pulse (Battery) */}
               <View style={styles.pulseTopRight} />
             </View>
 
-            {/* Bottom Flow Connecting Tracks */}
+            {/* Bottom Flow Connecting Tracks (Figma Node 2065:708) */}
             <View style={styles.bottomTracksContainer} pointerEvents="none">
+              {/* Left Track (Grid -> Inverter) */}
               <View style={styles.trackBottomLeft} />
 
+              {/* Right Track (Load <- Inverter) */}
               <View style={styles.trackBottomRight} />
+              {/* Active Blue Flow Pulse (Load) */}
               <View style={styles.pulseBottomRight} />
               <View style={styles.pulseBottomRightVertical} />
             </View>
 
-            {/* Central 3D Inverter */}
+            {/* Central 3D Hybrid Inverter Device (Figma Node 2065:726) */}
             <View style={styles.inverterWrapper}>
               <Image
                 source={require('../../assets/images/inverter.png')}
@@ -128,64 +133,48 @@ export const SourceMonitoringScreen: React.FC<SourceMonitoringScreenProps> = ({
               />
             </View>
 
-            {/* Top-Left: Solar Node */}
-            <TouchableOpacity
-              style={[styles.nodeContainer, styles.nodeTopLeft]}
-              activeOpacity={0.8}
-              onPress={() => Alert.alert('Solar Source', `${solarKw} kW generated currently`)}
-            >
+            {/* Top Left Node: Solar (Figma Node 2065:711) */}
+            <View style={[styles.nodeContainer, styles.nodeTopLeft]}>
               <View style={[styles.nodeIconCircle, styles.solarShadow]}>
-                <Feather name="sun" size={28} color="#F5A624" />
+                <Feather name="sun" size={30} color="#F5A624" />
               </View>
-              <Text style={styles.nodeLabel}>Solar</Text>
-              <Text style={styles.nodeValue}>{solarKw} kW</Text>
-            </TouchableOpacity>
+              <Text style={styles.nodeLabel} numberOfLines={1}>Solar</Text>
+              <Text style={styles.nodeValue} numberOfLines={1}>{solarKw} kW</Text>
+            </View>
 
-            {/* Top-Right: Battery Node */}
-            <TouchableOpacity
-              style={[styles.nodeContainer, styles.nodeTopRight]}
-              activeOpacity={0.8}
-              onPress={() => Alert.alert('Battery Storage', `${batterySoc}% capacity remaining`)}
-            >
+            {/* Top Right Node: Battery (Figma Node 2065:718) */}
+            <View style={[styles.nodeContainer, styles.nodeTopRight]}>
               <View style={[styles.nodeIconCircle, styles.batteryShadow]}>
-                <Ionicons name="battery-charging" size={28} color="#2FAD29" />
+                <Ionicons name="battery-charging" size={30} color="#2FAD29" />
               </View>
-              <Text style={styles.nodeLabel}>Battery</Text>
-              <Text style={styles.nodeValue}>{batterySoc}%</Text>
-            </TouchableOpacity>
+              <Text style={styles.nodeLabel} numberOfLines={1}>Battery</Text>
+              <Text style={styles.nodeValue} numberOfLines={1}>{batterySoc}%</Text>
+            </View>
 
-            {/* Bottom-Left: Grid Node */}
-            <TouchableOpacity
-              style={[styles.nodeContainer, styles.nodeBottomLeft]}
-              activeOpacity={0.8}
-              onPress={() => Alert.alert('Grid Connection', `${gridKw} kW flow (Standby)`)}
-            >
+            {/* Bottom Left Node: Grid (Figma Node 2065:727) */}
+            <View style={[styles.nodeContainer, styles.nodeBottomLeft]}>
               <View style={[styles.nodeIconCircle, styles.gridShadow]}>
-                <MaterialCommunityIcons name="transmission-tower" size={28} color="#7977DA" />
+                <MaterialCommunityIcons name="transmission-tower" size={30} color="#7977DA" />
               </View>
-              <Text style={styles.nodeLabel}>Grid</Text>
-              <Text style={styles.nodeValue}>{gridKw} kW</Text>
-            </TouchableOpacity>
+              <Text style={styles.nodeLabel} numberOfLines={1}>Grid</Text>
+              <Text style={styles.nodeValue} numberOfLines={1}>{gridKw} kW</Text>
+            </View>
 
-            {/* Bottom-Right: Load Node */}
-            <TouchableOpacity
-              style={[styles.nodeContainer, styles.nodeBottomRight]}
-              activeOpacity={0.8}
-              onPress={() => Alert.alert('Home Load', `${loadKw} kW current consumption`)}
-            >
+            {/* Bottom Right Node: Load (Figma Node 2065:734) */}
+            <View style={[styles.nodeContainer, styles.nodeBottomRight]}>
               <View style={[styles.nodeIconCircle, styles.loadShadow]}>
-                <MaterialCommunityIcons name="home-lightning-bolt-outline" size={28} color="#0076FF" />
+                <MaterialCommunityIcons name="home-lightning-bolt-outline" size={30} color="#0076FF" />
               </View>
-              <Text style={styles.nodeLabel}>Load</Text>
-              <Text style={styles.nodeValue}>{loadKw} kW</Text>
-            </TouchableOpacity>
+              <Text style={styles.nodeLabel} numberOfLines={1}>Load</Text>
+              <Text style={styles.nodeValue} numberOfLines={1}>{loadKw} kW</Text>
+            </View>
           </View>
 
-          {/* Standby Status Badge - Matches Figma Node 2065:1506 */}
+          {/* System Status Pill Badge - Matches Figma Node 2071:982 */}
           <View style={styles.statusBadgeContainer}>
             <View style={styles.statusBadge}>
               <View style={styles.statusDot} />
-              <Text style={styles.statusText}>Standby</Text>
+              <Text style={styles.statusText}>Power Flow: Active</Text>
             </View>
           </View>
         </ScrollView>
@@ -233,48 +222,47 @@ const styles = StyleSheet.create({
     letterSpacing: 0.32,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 120,
+    paddingTop: 8,
+    paddingBottom: 40,
   },
   timestampRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    marginBottom: 8,
+    marginBottom: 16,
   },
   timestampText: {
-    fontSize: 12,
-    color: '#9E9EA0',
-    fontWeight: '400',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6B7280',
   },
   refreshButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.07,
-    shadowRadius: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     elevation: 1,
   },
-  diagramCard: {
-    width: DIAGRAM_WIDTH,
+
+  // Diagram Layout
+  diagramWrapper: {
     height: 434,
+    alignSelf: 'center',
     position: 'relative',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
 
-  // Central Inverter
+  // Central Inverter Unit (w: 132, h: 192)
   inverterWrapper: {
     position: 'absolute',
-    top: 130,
+    top: 129,
     left: '50%',
     marginLeft: -66,
     width: 132,
@@ -291,109 +279,109 @@ const styles = StyleSheet.create({
     height: '100%',
   },
 
-  // Top Tracks
+  // Top Tracks (w: 230, h: 114)
   topTracksContainer: {
     position: 'absolute',
     top: 40,
     left: '50%',
-    marginLeft: -110,
-    width: 220,
-    height: 110,
+    marginLeft: -125,
+    width: 230,
+    height: 114,
     zIndex: 5,
   },
   trackTopLeft: {
     position: 'absolute',
     left: 0,
     top: 0,
-    width: 95,
-    height: 110,
-    borderTopWidth: 2.5,
-    borderRightWidth: 2.5,
+    width: 102,
+    height: 114,
+    borderTopWidth: 3.4,
+    borderRightWidth: 3.4,
     borderColor: '#DEDEDE',
-    borderTopRightRadius: 10,
+    borderTopRightRadius: 11,
   },
   pulseTopLeft: {
     position: 'absolute',
     left: 45,
     top: 0,
-    width: 30,
-    height: 2.5,
+    width: 34,
+    height: 3.4,
     backgroundColor: '#1C82FE',
-    borderRadius: 1.25,
+    borderRadius: 1.7,
   },
   trackTopRight: {
     position: 'absolute',
     right: 0,
     top: 0,
-    width: 80,
-    height: 110,
-    borderTopWidth: 2.5,
-    borderLeftWidth: 2.5,
+    width: 82,
+    height: 114,
+    borderTopWidth: 3.4,
+    borderLeftWidth: 3.4,
     borderColor: '#DEDEDE',
-    borderTopLeftRadius: 10,
+    borderTopLeftRadius: 11,
   },
   pulseTopRight: {
     position: 'absolute',
-    right: 55,
+    right: 59,
     top: 0,
-    width: 22,
-    height: 2.5,
+    width: 23,
+    height: 3.4,
     backgroundColor: '#1C82FE',
-    borderRadius: 1.25,
+    borderRadius: 1.7,
   },
 
-  // Bottom Tracks
+  // Bottom Tracks (w: 230, h: 114)
   bottomTracksContainer: {
     position: 'absolute',
-    top: 250,
+    top: 248,
     left: '50%',
-    marginLeft: -110,
-    width: 220,
-    height: 110,
+    marginLeft: -125,
+    width: 230,
+    height: 114,
     zIndex: 5,
   },
   trackBottomLeft: {
     position: 'absolute',
     left: 0,
     bottom: 0,
-    width: 95,
-    height: 110,
-    borderBottomWidth: 2.5,
-    borderRightWidth: 2.5,
+    width: 102,
+    height: 114,
+    borderBottomWidth: 3.4,
+    borderRightWidth: 3.4,
     borderColor: '#DEDEDE',
-    borderBottomRightRadius: 10,
+    borderBottomRightRadius: 11,
   },
   trackBottomRight: {
     position: 'absolute',
     right: 0,
     bottom: 0,
-    width: 80,
-    height: 110,
-    borderBottomWidth: 2.5,
-    borderLeftWidth: 2.5,
+    width: 82,
+    height: 114,
+    borderBottomWidth: 3.4,
+    borderLeftWidth: 3.4,
     borderColor: '#DEDEDE',
-    borderBottomLeftRadius: 10,
+    borderBottomLeftRadius: 11,
   },
   pulseBottomRight: {
     position: 'absolute',
     right: 0,
     bottom: 0,
-    width: 32,
-    height: 2.5,
+    width: 35.8,
+    height: 3.4,
     backgroundColor: '#1C82FE',
-    borderRadius: 1.25,
+    borderRadius: 1.7,
   },
   pulseBottomRightVertical: {
     position: 'absolute',
-    right: 78.5,
-    bottom: 28,
-    width: 2.5,
-    height: 30,
+    right: 80.3,
+    bottom: 31.5,
+    width: 3.4,
+    height: 33,
     backgroundColor: '#1C82FE',
-    borderRadius: 1.25,
+    borderRadius: 1.7,
   },
 
-  // Nodes
+  // Telemetry Nodes (Top: 10px, Bottom: 331px)
   nodeContainer: {
     position: 'absolute',
     alignItems: 'center',

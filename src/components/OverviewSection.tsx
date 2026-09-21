@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useResponsive } from '../utils/responsive';
 
 interface OverviewSectionProps {
   batterySoc?: number;
@@ -20,20 +21,31 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   loadStatus = 'Moderate',
   onPressCard,
 }) => {
+  const { isSmallScreen, horizontalPadding } = useResponsive();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingHorizontal: horizontalPadding }]}>
       <Text style={styles.sectionTitle}>Overview</Text>
 
       {/* Top 2 Cards: Battery SOC & Source Monitoring */}
-      <View style={styles.topRow}>
+      <View style={[styles.topRow, isSmallScreen && { gap: 10, marginBottom: 10 }]}>
         {/* Battery SOC Card */}
         <TouchableOpacity
-          style={styles.halfCard}
+          style={[styles.halfCard, isSmallScreen && styles.halfCardSmall]}
           activeOpacity={0.8}
           onPress={() => onPressCard?.('battery')}
         >
-          <Text style={styles.cardLabel}>Battery SOC</Text>
-          <Text style={styles.cardValue}>{batterySoc}%</Text>
+          <Text style={styles.cardLabel} numberOfLines={1}>
+            Battery SOC
+          </Text>
+          <Text
+            style={[styles.cardValue, isSmallScreen && styles.cardValueSmall]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {batterySoc}%
+          </Text>
 
           {/* Progress Bar */}
           <View style={styles.progressBarTrack}>
@@ -48,18 +60,29 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           {/* Status Label */}
           <View style={styles.statusRow}>
             <View style={[styles.statusDot, { backgroundColor: '#0088FF' }]} />
-            <Text style={styles.statusText}>{batteryStatus}</Text>
+            <Text style={styles.statusText} numberOfLines={1}>
+              {batteryStatus}
+            </Text>
           </View>
         </TouchableOpacity>
 
         {/* Source Monitoring Card */}
         <TouchableOpacity
-          style={styles.halfCard}
+          style={[styles.halfCard, isSmallScreen && styles.halfCardSmall]}
           activeOpacity={0.8}
           onPress={() => onPressCard?.('source')}
         >
-          <Text style={styles.cardLabel}>Source Monitoring</Text>
-          <Text style={styles.cardValue}>{sourceKwh} kWh</Text>
+          <Text style={styles.cardLabel} numberOfLines={1}>
+            Source Monitoring
+          </Text>
+          <Text
+            style={[styles.cardValue, isSmallScreen && styles.cardValueSmall]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {sourceKwh} kWh
+          </Text>
 
           {/* Progress Bar */}
           <View style={styles.progressBarTrack}>
@@ -74,19 +97,30 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           {/* Status Label */}
           <View style={styles.statusRow}>
             <View style={[styles.statusDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.statusText}>{sourceStatus}</Text>
+            <Text style={styles.statusText} numberOfLines={1}>
+              {sourceStatus}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
 
       {/* Bottom Card: Load Consumption */}
       <TouchableOpacity
-        style={styles.fullCard}
+        style={[styles.fullCard, isSmallScreen && styles.fullCardSmall]}
         activeOpacity={0.8}
         onPress={() => onPressCard?.('load')}
       >
-        <Text style={styles.cardLabel}>Load Consumption</Text>
-        <Text style={styles.cardValue}>{loadKw} kW</Text>
+        <Text style={styles.cardLabel} numberOfLines={1}>
+          Load Consumption
+        </Text>
+        <Text
+          style={[styles.cardValue, isSmallScreen && styles.cardValueSmall]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
+          {loadKw} kW
+        </Text>
 
         {/* Progress Bar */}
         <View style={styles.progressBarTrack}>
@@ -101,7 +135,9 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
         {/* Status Label */}
         <View style={styles.statusRow}>
           <View style={[styles.statusDot, { backgroundColor: '#F59E0B' }]} />
-          <Text style={styles.statusText}>{loadStatus}</Text>
+          <Text style={styles.statusText} numberOfLines={1}>
+            {loadStatus}
+          </Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -128,20 +164,28 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 156,
     backgroundColor: '#F5F5F7',
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 0.5,
     borderColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 20,
+    padding: 18,
     justifyContent: 'space-between',
+  },
+  halfCardSmall: {
+    padding: 12,
+    height: 144,
   },
   fullCard: {
     height: 156,
     backgroundColor: '#F5F5F7',
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 0.5,
     borderColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 20,
+    padding: 18,
     justifyContent: 'space-between',
+  },
+  fullCardSmall: {
+    padding: 14,
+    height: 144,
   },
   cardLabel: {
     fontSize: 13,
@@ -149,10 +193,13 @@ const styles = StyleSheet.create({
     color: '#555555',
   },
   cardValue: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: '#111827',
     marginVertical: 4,
+  },
+  cardValueSmall: {
+    fontSize: 22,
   },
   progressBarTrack: {
     width: '100%',
@@ -172,9 +219,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   statusDot: {
-    width: 9,
-    height: 9,
-    borderRadius: 4.5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   statusText: {
     fontSize: 12,

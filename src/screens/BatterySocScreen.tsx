@@ -12,8 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../theme/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { useResponsive } from '../utils/responsive';
 
 interface BatterySocScreenProps {
   onBack?: () => void;
@@ -79,6 +78,7 @@ export const BatterySocScreen: React.FC<BatterySocScreenProps> = ({
   batterySoc = 77,
   batteryTemp = 33.5,
 }) => {
+  const { horizontalPadding, isSmallScreen, contentWidth } = useResponsive();
   const [activeTab, setActiveTab] = useState<TimeRangeTab>('Week');
 
   const gaugeSize = 200;
@@ -186,48 +186,48 @@ export const BatterySocScreen: React.FC<BatterySocScreenProps> = ({
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.metricsRow}
+              contentContainerStyle={[styles.metricsRow, { paddingHorizontal: horizontalPadding }]}
             >
               {/* Metric 1: Run time */}
-              <View style={styles.metricCard}>
+              <View style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}>
                 <View style={styles.metricHeader}>
                   <Feather name="clock" size={15} color="#555555" />
-                  <Text style={styles.metricTitle}>Run time</Text>
+                  <Text style={styles.metricTitle} numberOfLines={1}>Run time</Text>
                 </View>
                 <View style={styles.metricBody}>
-                  <Text style={styles.metricValue}>1h 07m</Text>
-                  <Text style={styles.metricSubtext}>Current session</Text>
+                  <Text style={styles.metricValue} numberOfLines={1}>1h 07m</Text>
+                  <Text style={styles.metricSubtext} numberOfLines={1}>Current session</Text>
                 </View>
               </View>
 
               {/* Metric 2: ETC */}
-              <View style={styles.metricCard}>
+              <View style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}>
                 <View style={styles.metricHeader}>
                   <Feather name="zap" size={15} color="#555555" />
-                  <Text style={styles.metricTitle}>ETC</Text>
+                  <Text style={styles.metricTitle} numberOfLines={1}>ETC</Text>
                 </View>
                 <View style={styles.metricBody}>
-                  <Text style={styles.metricValue}>1h 30m</Text>
-                  <Text style={styles.metricSubtext}>Estimated time</Text>
+                  <Text style={styles.metricValue} numberOfLines={1}>1h 30m</Text>
+                  <Text style={styles.metricSubtext} numberOfLines={1}>Estimated time</Text>
                 </View>
               </View>
 
               {/* Metric 3: Temperature */}
-              <View style={styles.metricCard}>
+              <View style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}>
                 <View style={styles.metricHeader}>
                   <Feather name="thermometer" size={15} color="#555555" />
-                  <Text style={styles.metricTitle}>Temperature</Text>
+                  <Text style={styles.metricTitle} numberOfLines={1}>Temperature</Text>
                 </View>
                 <View style={styles.metricBody}>
-                  <Text style={styles.metricValue}>{batteryTemp} °C</Text>
-                  <Text style={styles.metricSubtext}>Battery</Text>
+                  <Text style={styles.metricValue} numberOfLines={1}>{batteryTemp} °C</Text>
+                  <Text style={styles.metricSubtext} numberOfLines={1}>Battery</Text>
                 </View>
               </View>
             </ScrollView>
           </View>
 
           {/* 3. Chart Card: Energy Split - Matches Figma Node 2052:255 */}
-          <View style={styles.chartCard}>
+          <View style={[styles.chartCard, { marginHorizontal: horizontalPadding }]}>
             <View style={styles.chartHeaderRow}>
               <Text style={styles.chartTitle}>Energy Split</Text>
 
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   metricCard: {
-    width: (SCREEN_WIDTH - 48 - 24) / 3 > 100 ? (SCREEN_WIDTH - 48 - 24) / 3 : 110,
+    minWidth: 104,
     height: 90,
     backgroundColor: '#F5F5F7',
     borderRadius: 12,
@@ -499,6 +499,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.03,
     shadowRadius: 3,
     elevation: 1,
+  },
+  metricCardSmall: {
+    minWidth: 96,
+    padding: 10,
+    height: 84,
   },
   metricHeader: {
     flexDirection: 'row',

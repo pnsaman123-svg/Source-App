@@ -5,14 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = (SCREEN_WIDTH - 48 - 12) / 2; // 24px left/right padding, 12px gap
+import { useResponsive } from '../utils/responsive';
 
 interface ControlSettingsScreenProps {
   onBack?: () => void;
@@ -29,6 +26,8 @@ export const ControlSettingsScreen: React.FC<ControlSettingsScreenProps> = ({
   onNavigateToFirmware,
   onNavigateToDeviceManagement,
 }) => {
+  const { horizontalPadding, isSmallScreen } = useResponsive();
+
   return (
     <View style={styles.root}>
       {/* Background Gradient */}
@@ -56,56 +55,56 @@ export const ControlSettingsScreen: React.FC<ControlSettingsScreenProps> = ({
         </View>
 
         {/* Content Container */}
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingHorizontal: horizontalPadding }]}>
           {/* Row 1 */}
-          <View style={styles.cardsRow}>
-            {/* Inverter Mode */}
+          <View style={[styles.cardsRow, isSmallScreen && { gap: 10 }]}>
+            {/* Card 1: General Settings */}
             <TouchableOpacity
-              style={styles.card}
-              onPress={onNavigateToInverterMode}
-              activeOpacity={0.75}
+              style={[styles.card, isSmallScreen && styles.cardSmall]}
+              activeOpacity={0.8}
+              onPress={onNavigateToGeneralSettings}
             >
               <View style={styles.iconContainer}>
-                <Feather name="sun" size={26} color="#1D1B20" />
+                <Feather name="sliders" size={24} color="#1D1B20" />
               </View>
-              <Text style={styles.cardTitle}>Inverter Mode</Text>
+              <Text style={styles.cardTitle}>General{'\n'}Settings</Text>
             </TouchableOpacity>
 
-            {/* General Settings */}
+            {/* Card 2: Inverter Mode */}
             <TouchableOpacity
-              style={styles.card}
-              onPress={onNavigateToGeneralSettings}
-              activeOpacity={0.75}
+              style={[styles.card, isSmallScreen && styles.cardSmall]}
+              activeOpacity={0.8}
+              onPress={onNavigateToInverterMode}
             >
               <View style={styles.iconContainer}>
-                <Feather name="settings" size={26} color="#1D1B20" />
+                <Feather name="layers" size={24} color="#1D1B20" />
               </View>
-              <Text style={styles.cardTitle}>General Settings</Text>
+              <Text style={styles.cardTitle}>Inverter{'\n'}Mode</Text>
             </TouchableOpacity>
           </View>
 
           {/* Row 2 */}
-          <View style={styles.cardsRow}>
-            {/* Firmware & Software */}
+          <View style={[styles.cardsRow, isSmallScreen && { gap: 10 }]}>
+            {/* Card 3: Firmware */}
             <TouchableOpacity
-              style={styles.card}
+              style={[styles.card, isSmallScreen && styles.cardSmall]}
+              activeOpacity={0.8}
               onPress={onNavigateToFirmware}
-              activeOpacity={0.75}
             >
               <View style={styles.iconContainer}>
-                <Feather name="download" size={26} color="#1D1B20" />
+                <Feather name="cpu" size={24} color="#1D1B20" />
               </View>
-              <Text style={styles.cardTitle}>Firmware &{'\n'}Software</Text>
+              <Text style={styles.cardTitle}>Firmware</Text>
             </TouchableOpacity>
 
-            {/* Device Management */}
+            {/* Card 4: Device Management */}
             <TouchableOpacity
-              style={styles.card}
+              style={[styles.card, isSmallScreen && styles.cardSmall]}
+              activeOpacity={0.8}
               onPress={onNavigateToDeviceManagement}
-              activeOpacity={0.75}
             >
               <View style={styles.iconContainer}>
-                <Feather name="smartphone" size={26} color="#1D1B20" />
+                <Feather name="smartphone" size={24} color="#1D1B20" />
               </View>
               <Text style={styles.cardTitle}>Device{'\n'}Management</Text>
             </TouchableOpacity>
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    width: CARD_WIDTH,
+    flex: 1,
     height: 140,
     backgroundColor: '#F5F5F7',
     borderRadius: 12,
@@ -177,6 +176,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
+  },
+  cardSmall: {
+    padding: 12,
+    height: 128,
   },
   iconContainer: {
     width: 32,

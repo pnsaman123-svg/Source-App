@@ -4,20 +4,30 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 interface CarouselIndicatorsProps {
   activeIndex: number;
   total?: number;
-  onSelectIndex: (index: number) => void;
+  count?: number;
+  onSelectIndex?: (index: number) => void;
+  onPressDot?: (index: number) => void;
 }
 
 export const CarouselIndicators: React.FC<CarouselIndicatorsProps> = ({
   activeIndex,
-  total = 3,
+  total,
+  count,
   onSelectIndex,
+  onPressDot,
 }) => {
+  const dotCount = count ?? total ?? 3;
+  const handleSelect = (idx: number) => {
+    onSelectIndex?.(idx);
+    onPressDot?.(idx);
+  };
+
   return (
     <View style={styles.container}>
-      {Array.from({ length: total }).map((_, idx) => (
+      {Array.from({ length: dotCount }).map((_, idx) => (
         <TouchableOpacity
           key={idx}
-          onPress={() => onSelectIndex(idx)}
+          onPress={() => handleSelect(idx)}
           activeOpacity={0.8}
           style={[
             styles.dot,

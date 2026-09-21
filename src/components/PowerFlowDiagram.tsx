@@ -1,10 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HERO_WIDTH = SCREEN_WIDTH - 48; // 24px left + 24px right padding
-const HERO_HEIGHT = 321; // Figma Node 2312:1656 exact height
+import { useResponsive } from '../utils/responsive';
 
 interface PowerFlowDiagramProps {
   solarKw?: number;
@@ -21,8 +18,10 @@ export const PowerFlowDiagram: React.FC<PowerFlowDiagramProps> = ({
   loadKw = 4.5,
   onSelectMetric,
 }) => {
+  const { heroWidth, heroHeight } = useResponsive();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { width: heroWidth, height: heroHeight }]}>
       {/* 1. Top Flow Connecting Tracks (Figma Node 2312:1657) */}
       <View style={styles.topTracksContainer} pointerEvents="none">
         {/* Left Track (Solar -> Inverter) */}
@@ -66,8 +65,8 @@ export const PowerFlowDiagram: React.FC<PowerFlowDiagramProps> = ({
         <View style={[styles.nodeIconCircle, styles.solarShadow]}>
           <Feather name="sun" size={22} color="#F5A624" />
         </View>
-        <Text style={styles.nodeLabel}>Solar</Text>
-        <Text style={styles.nodeValue}>{solarKw} kW</Text>
+        <Text style={styles.nodeLabel} numberOfLines={1}>Solar</Text>
+        <Text style={styles.nodeValue} numberOfLines={1}>{solarKw} kW</Text>
       </TouchableOpacity>
 
       {/* 5. Top Right Node: Battery (Figma Node 2312:1670) */}
@@ -79,8 +78,8 @@ export const PowerFlowDiagram: React.FC<PowerFlowDiagramProps> = ({
         <View style={[styles.nodeIconCircle, styles.batteryShadow]}>
           <Ionicons name="battery-charging" size={22} color="#2FAD29" />
         </View>
-        <Text style={styles.nodeLabel}>Battery</Text>
-        <Text style={styles.nodeValue}>{batterySoc}%</Text>
+        <Text style={styles.nodeLabel} numberOfLines={1}>Battery</Text>
+        <Text style={styles.nodeValue} numberOfLines={1}>{batterySoc}%</Text>
       </TouchableOpacity>
 
       {/* 6. Bottom Left Node: Grid (Figma Node 2312:1679) */}
@@ -92,8 +91,8 @@ export const PowerFlowDiagram: React.FC<PowerFlowDiagramProps> = ({
         <View style={[styles.nodeIconCircle, styles.gridShadow]}>
           <MaterialCommunityIcons name="transmission-tower" size={22} color="#7977DA" />
         </View>
-        <Text style={styles.nodeLabel}>Grid</Text>
-        <Text style={styles.nodeValue}>{gridKw} kW</Text>
+        <Text style={styles.nodeLabel} numberOfLines={1}>Grid</Text>
+        <Text style={styles.nodeValue} numberOfLines={1}>{gridKw} kW</Text>
       </TouchableOpacity>
 
       {/* 7. Bottom Right Node: Load (Figma Node 2312:1686) */}
@@ -105,8 +104,8 @@ export const PowerFlowDiagram: React.FC<PowerFlowDiagramProps> = ({
         <View style={[styles.nodeIconCircle, styles.loadShadow]}>
           <MaterialCommunityIcons name="home-lightning-bolt-outline" size={22} color="#0076FF" />
         </View>
-        <Text style={styles.nodeLabel}>Load</Text>
-        <Text style={styles.nodeValue}>{loadKw}kW</Text>
+        <Text style={styles.nodeLabel} numberOfLines={1}>Load</Text>
+        <Text style={styles.nodeValue} numberOfLines={1}>{loadKw}kW</Text>
       </TouchableOpacity>
     </View>
   );
@@ -114,8 +113,6 @@ export const PowerFlowDiagram: React.FC<PowerFlowDiagramProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: HERO_WIDTH,
-    height: HERO_HEIGHT,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',

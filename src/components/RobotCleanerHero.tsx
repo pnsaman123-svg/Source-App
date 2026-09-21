@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HERO_WIDTH = SCREEN_WIDTH - 48; // 24px left + 24px right padding
-const HERO_HEIGHT = 321; // Figma exact slide height
+import { View, StyleSheet, Image } from 'react-native';
+import { useResponsive } from '../utils/responsive';
 
 export const RobotCleanerHero: React.FC = () => {
+  const { heroWidth, heroHeight } = useResponsive();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { width: heroWidth, height: heroHeight }]}>
       <Image
         source={require('../../assets/images/clean-tech-hero.png')}
         style={styles.robotImage}
@@ -19,8 +18,6 @@ export const RobotCleanerHero: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: HERO_WIDTH,
-    height: HERO_HEIGHT,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',

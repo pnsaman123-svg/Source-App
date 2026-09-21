@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TabType } from '../types/energy';
+import { useResponsive } from '../utils/responsive';
 
 interface BottomTabBarProps {
   activeTab: TabType;
@@ -50,6 +51,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   onSelectTab,
 }) => {
   const insets = useSafeAreaInsets();
+  const { isSmallScreen, isLargeScreen, horizontalPadding } = useResponsive();
   const [tabLayouts, setTabLayouts] = useState<{ [key: string]: { x: number; width: number } }>({});
 
   const slideAnimX = useRef(new Animated.Value(0)).current;
@@ -110,13 +112,28 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   }, [activeTab, tabLayouts]);
 
   return (
-    <View style={[styles.floatingWrapper, { bottom: Math.max(insets.bottom + 12, 28) }]}>
-      <View style={styles.container}>
+    <View
+      style={[
+        styles.floatingWrapper,
+        {
+          left: isSmallScreen ? 14 : horizontalPadding,
+          right: isSmallScreen ? 14 : horizontalPadding,
+          bottom: Math.max(insets.bottom + 10, 24),
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.container,
+          isSmallScreen && { paddingHorizontal: 6, height: 72 },
+        ]}
+      >
         {/* Animated Sliding Pill Highlight */}
         {tabLayouts[activeTab] && (
           <Animated.View
             style={[
               styles.slidingPill,
+              isSmallScreen && { height: 54 },
               {
                 left: slideAnimX,
                 width: slideAnimWidth,
@@ -140,7 +157,14 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
               onLayout={(e) => handleTabLayout(tab.key, e)}
               style={[
                 styles.tabItem,
-                isActive ? styles.activeItemPadding : styles.inactiveItemPadding,
+                isSmallScreen && { height: 54 },
+                isActive
+                  ? isSmallScreen
+                    ? styles.activeItemPaddingSmall
+                    : styles.activeItemPadding
+                  : isSmallScreen
+                  ? styles.inactiveItemPaddingSmall
+                  : styles.inactiveItemPadding,
               ]}
               onPress={() => onSelectTab(tab.key)}
               activeOpacity={0.8}
@@ -157,7 +181,15 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
                     },
                   ]}
                 >
-                  <Text style={styles.activeTabText}>{tab.label}</Text>
+                  <Text
+                    style={[
+                      styles.activeTabText,
+                      isSmallScreen && { fontSize: 13 },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {tab.label}
+                  </Text>
                 </Animated.View>
               )}
             </TouchableOpacity>
@@ -171,10 +203,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
 const styles = StyleSheet.create({
   floatingWrapper: {
     position: 'absolute',
-    left: 24,
-    right: 24,
     alignItems: 'center',
     zIndex: 100,
+    maxWidth: 520,
+    alignSelf: 'center',
   },
   container: {
     flexDirection: 'row',
@@ -214,8 +246,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 8,
   },
+  activeItemPaddingSmall: {
+    paddingHorizontal: 12,
+    gap: 6,
+  },
   inactiveItemPadding: {
     paddingHorizontal: 16,
+  },
+  inactiveItemPaddingSmall: {
+    paddingHorizontal: 10,
   },
   labelWrapper: {
     marginLeft: 2,

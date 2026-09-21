@@ -13,7 +13,7 @@ import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../theme/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { useResponsive } from '../utils/responsive';
 
 type TimeframeType = 'day' | 'week' | 'month';
 type ChartModeType = 'earnings' | 'gridEnergy' | 'netGrid' | 'carbon';
@@ -37,6 +37,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
   buyPrice = 16.5,
   sellPrice = 3.0,
 }) => {
+  const { horizontalPadding, isSmallScreen } = useResponsive();
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeType>('week');
   const [chartMode, setChartMode] = useState<ChartModeType>('earnings'); // 'earnings' (2136:2842), 'gridEnergy' (2132:2261), 'netGrid' (2125:1286), 'carbon'
   const [selectedEarningsIndex, setSelectedEarningsIndex] = useState<number>(5); // Sat (₹24) default peak
@@ -722,13 +723,13 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
           </View>
 
           {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4633 */}
-          <View style={styles.categoryCardContainer}>
-            <View style={styles.categoryGrid}>
+          <View style={[styles.categoryCardContainer, { paddingHorizontal: horizontalPadding }]}>
+            <View style={[styles.categoryGrid, isSmallScreen && { gap: 10 }]}>
               {/* Row 1 */}
-              <View style={styles.categoryRow}>
+              <View style={[styles.categoryRow, isSmallScreen && { gap: 10 }]}>
                 {/* 1. Net Grid */}
                 <TouchableOpacity
-                  style={styles.metricCard}
+                  style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('netGrid')}
                 >
@@ -738,14 +739,21 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
-                    <Text style={styles.metricLabel}>Net Grid</Text>
-                    <Text style={styles.metricValue}>{netGridKwh} kWh</Text>
+                    <Text style={styles.metricLabel} numberOfLines={1}>Net Grid</Text>
+                    <Text
+                      style={[styles.metricValue, isSmallScreen && styles.metricValueSmall]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      {netGridKwh} kWh
+                    </Text>
                   </View>
                 </TouchableOpacity>
 
                 {/* 2. Grid Export / Grid Energy */}
                 <TouchableOpacity
-                  style={styles.metricCard}
+                  style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('gridEnergy')}
                 >
@@ -755,17 +763,24 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
-                    <Text style={styles.metricLabel}>Grid Export</Text>
-                    <Text style={styles.metricValue}>{gridExportMwh} MWh</Text>
+                    <Text style={styles.metricLabel} numberOfLines={1}>Grid Export</Text>
+                    <Text
+                      style={[styles.metricValue, isSmallScreen && styles.metricValueSmall]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      {gridExportMwh} MWh
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
 
               {/* Row 2 */}
-              <View style={styles.categoryRow}>
+              <View style={[styles.categoryRow, isSmallScreen && { gap: 10 }]}>
                 {/* 3. Earnings */}
                 <TouchableOpacity
-                  style={styles.metricCard}
+                  style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('earnings')}
                 >
@@ -775,14 +790,21 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
-                    <Text style={styles.metricLabel}>Earnings</Text>
-                    <Text style={styles.metricValue}>₹{earningsInr}</Text>
+                    <Text style={styles.metricLabel} numberOfLines={1}>Earnings</Text>
+                    <Text
+                      style={[styles.metricValue, isSmallScreen && styles.metricValueSmall]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      ₹{earningsInr}
+                    </Text>
                   </View>
                 </TouchableOpacity>
 
                 {/* 4. Carbon */}
                 <TouchableOpacity
-                  style={styles.metricCard}
+                  style={[styles.metricCard, isSmallScreen && styles.metricCardSmall]}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('carbon')}
                 >
@@ -792,8 +814,15 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
-                    <Text style={styles.metricLabel}>Carbon</Text>
-                    <Text style={styles.metricValue}>{carbonTons} Tons</Text>
+                    <Text style={styles.metricLabel} numberOfLines={1}>Carbon</Text>
+                    <Text
+                      style={[styles.metricValue, isSmallScreen && styles.metricValueSmall]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      {carbonTons} Tons
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -1408,6 +1437,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
+  metricCardSmall: {
+    padding: 12,
+    gap: 16,
+  },
   metricTextWrapper: {
     gap: 2,
   },
@@ -1420,6 +1453,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#1A1A1A',
+  },
+  metricValueSmall: {
+    fontSize: 14,
   },
 });
 

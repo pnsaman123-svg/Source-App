@@ -6,7 +6,6 @@ import {
   RefreshControl,
   View,
   Image,
-  Dimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
@@ -21,10 +20,7 @@ import { OverviewSection } from '../components/OverviewSection';
 import { CleanTechControls } from '../components/CleanTechControls';
 import { Colors } from '../theme/colors';
 import { EnergyTelemetry } from '../types/energy';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HERO_WIDTH = SCREEN_WIDTH - 48; // 24px left + 24px right padding
-const HERO_HEIGHT = 321; // Figma Node 2312:1532 height
+import { useResponsive } from '../utils/responsive';
 
 const INITIAL_TELEMETRY: EnergyTelemetry = {
   userName: 'Anay',
@@ -57,6 +53,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onPressLoadConsumption,
   onPressEarnings,
 }) => {
+  const { heroWidth, heroHeight } = useResponsive();
   const [telemetry, setTelemetry] = useState<EnergyTelemetry>(INITIAL_TELEMETRY);
   const [refreshing, setRefreshing] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0); // 0 = House, 1 = Flow Diagram, 2 = Clean Tech
@@ -90,7 +87,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   // Top Hero Carousel Scroll Handler
   const handleTopScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / HERO_WIDTH);
+    const index = Math.round(offsetX / heroWidth);
     if (index !== activeSlide && (index === 0 || index === 1 || index === 2)) {
       setActiveSlide(index);
     }
@@ -100,7 +97,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const scrollToSlide = (index: number) => {
     setActiveSlide(index);
     topHeroScrollRef.current?.scrollTo({
-      x: index * HERO_WIDTH,
+      x: index * heroWidth,
       animated: true,
     });
   };
@@ -138,63 +135,62 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             />
           }
         >
-          {/* 2. Top Hero Carousel (Horizontal) */}
-          <View style={styles.heroCarouselContainer}>
+          {/* Top Hero Carousel */}
+          <View style={[styles.heroCarouselContainer, { height: heroHeight }]}>
             <ScrollView
               ref={topHeroScrollRef}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={handleTopScroll}
-              decelerationRate="fast"
-              snapToInterval={HERO_WIDTH}
-              snapToAlignment="center"
-              style={styles.heroScrollView}
+              onScroll={handleTopScroll}
+              scrollEventThrottle={16}
+              style={[styles.heroScrollView, { width: heroWidth, height: heroHeight }]}
               contentContainerStyle={styles.heroScrollContent}
-              nestedScrollEnabled={true}
+              decelerationRate="fast"
+              snapToInterval={heroWidth}
+              snapToAlignment="center"
             >
-              {/* Hero 1: 3D House */}
-              <View style={styles.heroSlide}>
+              {/* Slide 1: 3D Smart House with Interactive Callouts */}
+              <View style={[styles.heroSlide, { width: heroWidth, height: heroHeight }]}>
                 <HouseHero
                   solarKw={telemetry.solarGenerationKw}
                   gridKw={telemetry.gridPowerKw}
                   batterySoc={telemetry.batterySocPercent}
-                  loadKw={Math.round(telemetry.loadConsumptionKw * 10) / 10}
+                  loadKw={telemetry.loadConsumptionKw}
                   onSelectMetric={handleSelectMetric}
                 />
               </View>
 
-              {/* Hero 2: Power Flow Diagram */}
-              <View style={styles.heroSlide}>
+              {/* Slide 2: Dynamic Animated Power Flow Diagram */}
+              <View style={[styles.heroSlide, { width: heroWidth, height: heroHeight }]}>
                 <PowerFlowDiagram
                   solarKw={telemetry.solarGenerationKw}
                   batterySoc={telemetry.batterySocPercent}
-                  gridKw={telemetry.gridPowerKw}
-                  loadKw={Math.round(telemetry.loadConsumptionKw * 10) / 10}
+                  gridKw={-1}
+                  loadKw={telemetry.loadConsumptionKw}
                   onSelectMetric={handleSelectMetric}
                 />
               </View>
 
-              {/* Hero 3: Clean Tech Robot Cleaner */}
-              <View style={styles.heroSlide}>
+              {/* Slide 3: Clean Tech Robot Hero */}
+              <View style={[styles.heroSlide, { width: heroWidth, height: heroHeight }]}>
                 <RobotCleanerHero />
               </View>
             </ScrollView>
           </View>
 
-          {/* 3. CAROUSEL DOTS */}
+          {/* Carousel Dot Indicators */}
           <View style={styles.dotsContainer}>
             <CarouselIndicators
               activeIndex={activeSlide}
-              total={3}
-              onSelectIndex={scrollToSlide}
+              count={3}
+              onPressDot={scrollToSlide}
             />
           </View>
 
-          {/* 4. Bottom Content (Persistent Savings & Overview for Slide 1 & 2, CleanTechControls for Slide 3) */}
+          {/* Morphing Bottom Section */}
           {!isCleanTechMode ? (
-            /* Slide 1 & 2: Savings + Overview (Persistent & Non-sliding) */
-            <View key="energy-cards">
+            <View key="standard-dashboard">
               <SavingsSection
                 weeklyEarnings={telemetry.weeklyEarningsInr}
                 co2Savings={telemetry.co2SavingsTons}
@@ -259,20 +255,14 @@ const styles = StyleSheet.create({
     paddingBottom: 175,
   },
   heroCarouselContainer: {
-    height: HERO_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heroScrollView: {
-    width: HERO_WIDTH,
-    height: HERO_HEIGHT,
-  },
+  heroScrollView: {},
   heroScrollContent: {
     alignItems: 'center',
   },
   heroSlide: {
-    width: HERO_WIDTH,
-    height: HERO_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },

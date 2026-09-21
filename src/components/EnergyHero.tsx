@@ -13,10 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 import { PowerFlowDiagram } from './PowerFlowDiagram';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const SLIDE_WIDTH = SCREEN_WIDTH - 48; // 24px left + 24px right
-const HERO_HEIGHT = 310;
+import { useResponsive } from '../utils/responsive';
 
 interface EnergyHeroProps {
   solarKw?: number;
@@ -37,6 +34,7 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
   onSlideChange,
   onSelectMetric,
 }) => {
+  const { heroWidth, heroHeight } = useResponsive();
   const [currentSlide, setCurrentSlide] = useState(activeSlide);
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -44,7 +42,7 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
     if (activeSlide !== currentSlide) {
       setCurrentSlide(activeSlide);
       scrollViewRef.current?.scrollTo({
-        x: activeSlide * SLIDE_WIDTH,
+        x: activeSlide * heroWidth,
         animated: true,
       });
     }
@@ -52,7 +50,7 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / SLIDE_WIDTH);
+    const index = Math.round(contentOffsetX / heroWidth);
     if (index !== currentSlide && (index === 0 || index === 1 || index === 2)) {
       setCurrentSlide(index);
       onSlideChange?.(index);
@@ -61,7 +59,7 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
 
   const scrollToSlide = (index: number) => {
     scrollViewRef.current?.scrollTo({
-      x: index * SLIDE_WIDTH,
+      x: index * heroWidth,
       animated: true,
     });
     setCurrentSlide(index);
@@ -78,13 +76,13 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
         decelerationRate="fast"
-        snapToInterval={SLIDE_WIDTH}
+        snapToInterval={heroWidth}
         snapToAlignment="center"
-        style={styles.scrollView}
+        style={[styles.scrollView, { width: heroWidth, height: heroHeight }]}
         contentContainerStyle={styles.scrollContent}
       >
         {/* Slide 1: 3D Smart House Hero */}
-        <View style={styles.slide}>
+        <View style={[styles.slide, { width: heroWidth, height: heroHeight }]}>
           <View style={styles.houseContainer}>
             <Image
               source={require('../../assets/images/house.png')}
@@ -141,7 +139,7 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
         </View>
 
         {/* Slide 2: Power Flow Diagram */}
-        <View style={styles.slide}>
+        <View style={[styles.slide, { width: heroWidth, height: heroHeight }]}>
           <PowerFlowDiagram
             solarKw={solarKw}
             batterySoc={batterySoc}
@@ -151,7 +149,7 @@ export const EnergyHero: React.FC<EnergyHeroProps> = ({
         </View>
 
         {/* Slide 3: Solar Robot Cleaner Hero */}
-        <View style={styles.slide}>
+        <View style={[styles.slide, { width: heroWidth, height: heroHeight }]}>
           <View style={styles.robotContainer}>
             {/* Status Pill Badge */}
             <View style={styles.statusPill}>
@@ -193,16 +191,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  scrollView: {
-    width: SLIDE_WIDTH,
-    height: HERO_HEIGHT,
-  },
+  scrollView: {},
   scrollContent: {
     alignItems: 'center',
   },
   slide: {
-    width: SLIDE_WIDTH,
-    height: HERO_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },

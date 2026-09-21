@@ -132,7 +132,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <StatusBar style="dark" />
 
         {/* Active Screen View */}
         <View style={styles.screenContainer}>

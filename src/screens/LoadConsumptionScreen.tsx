@@ -6,14 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = (SCREEN_WIDTH - 48 - 10) / 2; // 24px left/right padding, 10px gap
+import { useResponsive } from '../utils/responsive';
 
 interface ApplianceItem {
   id: string;
@@ -100,6 +97,9 @@ export const LoadConsumptionScreen: React.FC<LoadConsumptionScreenProps> = ({
   onBack,
   loadConsumptionKw = 4.57,
 }) => {
+  const { horizontalPadding, isSmallScreen, contentWidth } = useResponsive();
+  const cardWidth = (contentWidth - 10) / 2;
+
   const renderApplianceIcon = (item: ApplianceItem) => {
     if (item.iconType === 'mci') {
       return (
@@ -150,7 +150,7 @@ export const LoadConsumptionScreen: React.FC<LoadConsumptionScreenProps> = ({
 
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingHorizontal: horizontalPadding }]}
           showsVerticalScrollIndicator={false}
         >
           {/* 1. Concentric Semi-Circular Arc Gauge - Pure React Native (Fabric-Safe) */}
@@ -211,7 +211,7 @@ export const LoadConsumptionScreen: React.FC<LoadConsumptionScreenProps> = ({
 
             <View style={styles.applianceGrid}>
               {APPLIANCES.map((item) => (
-                <View key={item.id} style={styles.applianceCard}>
+                <View key={item.id} style={[styles.applianceCard, { width: cardWidth }]}>
                   {/* Top Row: Title + Icon Badge */}
                   <View style={styles.cardHeader}>
                     <Text style={styles.applianceName} numberOfLines={1}>
@@ -222,14 +222,19 @@ export const LoadConsumptionScreen: React.FC<LoadConsumptionScreenProps> = ({
                     </View>
                   </View>
 
-                  {/* Value */}
+                  {/* Bottom Row: Value + Unit + Sublabel */}
                   <View style={styles.valueRow}>
-                    <Text style={styles.applianceValue}>{item.value}</Text>
+                    <Text
+                      style={[styles.applianceValue, isSmallScreen && { fontSize: 22 }]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.8}
+                    >
+                      {item.value}
+                    </Text>
                     <Text style={styles.applianceUnit}>{item.unit}</Text>
                   </View>
-
-                  {/* Subtext */}
-                  <Text style={styles.energyUsedLabel}>Energy Used</Text>
+                  <Text style={styles.energyUsedLabel}>energy used</Text>
                 </View>
               ))}
             </View>
@@ -283,120 +288,115 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 8,
-    paddingBottom: 120, // space for floating bottom tab bar
+    paddingTop: 12,
+    paddingBottom: 40,
   },
 
-  // Gauge Section
+  // Concentric Arc Gauge Section
   gaugeSection: {
     alignItems: 'center',
-    paddingVertical: 10,
-    gap: 16,
+    marginTop: 8,
   },
   gaugeContainer: {
-    width: 290,
+    width: 280,
     height: 155,
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    position: 'relative',
+    overflow: 'hidden',
   },
-
-  // Outer Arc (Solar - 280px diameter / 140px height)
+  // 1. Outer Arc Track (Solar - 280x280)
   outerArcTrack: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     width: 280,
-    height: 140,
-    borderTopLeftRadius: 140,
-    borderTopRightRadius: 140,
-    borderWidth: 8,
-    borderColor: '#E2E2EA',
-    borderBottomWidth: 0,
+    height: 280,
+    borderRadius: 140,
+    borderWidth: 10,
+    borderColor: 'rgba(243, 169, 46, 0.2)',
   },
   outerArcProgress: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     width: 280,
-    height: 140,
-    borderTopLeftRadius: 140,
-    borderTopRightRadius: 140,
-    borderWidth: 8,
+    height: 280,
+    borderRadius: 140,
+    borderWidth: 10,
     borderColor: '#F3A92E',
-    borderBottomWidth: 0,
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    transform: [{ rotate: '-45deg' }],
   },
-
-  // Middle Arc (Battery - 220px diameter / 110px height)
+  // 2. Middle Arc Track (Battery - 220x220)
   middleArcTrack: {
     position: 'absolute',
-    bottom: 0,
+    top: 30,
     width: 220,
-    height: 110,
-    borderTopLeftRadius: 110,
-    borderTopRightRadius: 110,
-    borderWidth: 8,
-    borderColor: '#E2E2EA',
-    borderBottomWidth: 0,
+    height: 220,
+    borderRadius: 110,
+    borderWidth: 10,
+    borderColor: 'rgba(59, 177, 57, 0.2)',
   },
   middleArcProgress: {
     position: 'absolute',
-    bottom: 0,
+    top: 30,
     width: 220,
-    height: 110,
-    borderTopLeftRadius: 110,
-    borderTopRightRadius: 0,
-    borderWidth: 8,
+    height: 220,
+    borderRadius: 110,
+    borderWidth: 10,
     borderColor: '#3BB139',
-    borderBottomWidth: 0,
-    borderRightWidth: 0,
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: 'transparent',
+    transform: [{ rotate: '-45deg' }],
   },
-
-  // Inner Arc (Grid - 160px diameter / 80px height)
+  // 3. Inner Arc Track (Grid - 160x160)
   innerArcTrack: {
     position: 'absolute',
-    bottom: 0,
+    top: 60,
     width: 160,
-    height: 80,
-    borderTopLeftRadius: 80,
-    borderTopRightRadius: 80,
-    borderWidth: 8,
-    borderColor: '#E2E2EA',
-    borderBottomWidth: 0,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 10,
+    borderColor: 'rgba(129, 131, 222, 0.2)',
   },
   innerArcProgress: {
     position: 'absolute',
-    bottom: 0,
+    top: 60,
     width: 160,
-    height: 80,
-    borderTopLeftRadius: 80,
-    borderTopRightRadius: 0,
-    borderWidth: 8,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 10,
     borderColor: '#8183DE',
-    borderBottomWidth: 0,
-    borderTopWidth: 0,
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: 'transparent',
+    transform: [{ rotate: '-90deg' }],
   },
-
+  // Center Text Readout
   gaugeCenterText: {
+    position: 'absolute',
+    bottom: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 4,
   },
   consumptionValue: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#121726',
-    letterSpacing: -0.5,
+    color: '#1A1A1A',
   },
   consumptionLabel: {
-    fontSize: 12,
-    fontWeight: '400',
-    color: '#8C8C94',
-    marginTop: 1,
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#9E9EA0',
+    marginTop: -2,
   },
 
   // Legend Card
   legendCard: {
-    width: '100%',
     flexDirection: 'row',
+    width: '100%',
+    marginTop: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgba(255, 255, 255, 0.65)',
@@ -447,7 +447,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   applianceCard: {
-    width: CARD_WIDTH,
     backgroundColor: '#F5F5F7',
     borderRadius: 10,
     borderWidth: 0.5,

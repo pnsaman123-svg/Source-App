@@ -1,10 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
-import { Colors } from '../theme/colors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HERO_WIDTH = SCREEN_WIDTH - 48; // 24px left + 24px right padding
-const HERO_HEIGHT = 321; // Figma Node 2312:1532 exact height
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useResponsive } from '../utils/responsive';
 
 interface HouseHeroProps {
   solarKw?: number;
@@ -21,8 +17,10 @@ export const HouseHero: React.FC<HouseHeroProps> = ({
   loadKw = 4.5,
   onSelectMetric,
 }) => {
+  const { heroWidth, heroHeight } = useResponsive();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { width: heroWidth, height: heroHeight }]}>
       {/* 3D Smart House Illustration */}
       <Image
         source={require('../../assets/images/house.png')}
@@ -64,8 +62,6 @@ export const HouseHero: React.FC<HouseHeroProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: HERO_WIDTH,
-    height: HERO_HEIGHT,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
