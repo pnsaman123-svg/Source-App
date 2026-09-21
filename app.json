@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "SOURCE Energy",
+    "slug": "smart-energy-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/house.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#EBEEF2"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#EBEEF2"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/house.png"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
+  }
+}
