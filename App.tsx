@@ -10,12 +10,19 @@ import { ControlSettingsScreen } from './src/screens/ControlSettingsScreen';
 import { BatterySocScreen } from './src/screens/BatterySocScreen';
 import { SourceMonitoringScreen } from './src/screens/SourceMonitoringScreen';
 import { LoadConsumptionScreen } from './src/screens/LoadConsumptionScreen';
+import { EarningsScreen } from './src/screens/EarningsScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
 
 type ServiceSubScreen = 'menu' | 'general' | 'inverter' | 'firmware' | 'device';
-type HomeSubScreen = 'main' | 'batterySoc' | 'sourceMonitoring' | 'loadConsumption';
+type HomeSubScreen =
+  | 'main'
+  | 'batterySoc'
+  | 'sourceMonitoring'
+  | 'loadConsumption'
+  | 'earnings'
+  | 'notifications';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -58,17 +65,44 @@ export default function App() {
             />
           );
         }
+        if (homeSubScreen === 'earnings') {
+          return (
+            <EarningsScreen
+              onBack={() => setHomeSubScreen('main')}
+              netGridKwh={2.68}
+              gridExportMwh={0.203}
+              earningsInr={145}
+              carbonTons={12.09}
+              buyPrice={16.5}
+              sellPrice={3.0}
+            />
+          );
+        }
+        if (homeSubScreen === 'notifications') {
+          return <WalletScreen onBack={() => setHomeSubScreen('main')} />;
+        }
         return (
           <HomeScreen
-            onPressNotifications={() => setActiveTab('savings')}
+            onPressNotifications={() => setHomeSubScreen('notifications')}
             onPressSettings={handleOpenSettings}
             onPressBatterySoc={() => setHomeSubScreen('batterySoc')}
             onPressSourceMonitoring={() => setHomeSubScreen('sourceMonitoring')}
             onPressLoadConsumption={() => setHomeSubScreen('loadConsumption')}
+            onPressEarnings={() => setHomeSubScreen('earnings')}
           />
         );
       case 'savings':
-        return <WalletScreen onBack={() => setActiveTab('home')} />;
+        return (
+          <EarningsScreen
+            onBack={() => setActiveTab('home')}
+            netGridKwh={2.68}
+            gridExportMwh={0.203}
+            earningsInr={145}
+            carbonTons={12.09}
+            buyPrice={16.5}
+            sellPrice={3.0}
+          />
+        );
       case 'service':
         if (serviceSubScreen === 'general') {
           return <AnalyticsScreen onBack={() => setServiceSubScreen('menu')} />;

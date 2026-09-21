@@ -1,0 +1,686 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '../theme/colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+type TimeframeType = 'day' | 'week' | 'month';
+
+interface EarningsScreenProps {
+  onBack?: () => void;
+  netGridKwh?: number;
+  gridExportMwh?: number;
+  earningsInr?: number;
+  carbonTons?: number;
+  buyPrice?: number;
+  sellPrice?: number;
+}
+
+export const EarningsScreen: React.FC<EarningsScreenProps> = ({
+  onBack,
+  netGridKwh = 2.68,
+  gridExportMwh = 0.203,
+  earningsInr = 145,
+  carbonTons = 12.09,
+  buyPrice = 16.5,
+  sellPrice = 3.0,
+}) => {
+  const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeType>('week');
+  const [selectedPointIndex, setSelectedPointIndex] = useState<number>(1); // default 12h selected
+
+  // Chart data per timeframe
+  const chartData = {
+    day: {
+      netGrid: '2.68 kWh',
+      gridExport: '0.042 MWh',
+      earnings: '₹38',
+      carbon: '1.75 Tons',
+      activeTooltip: '1.2 kWh',
+      bars: [
+        { label: '0', exportVal: 0.4, importVal: 0.2 },
+        { label: '6', exportVal: 1.2, importVal: 0.1 },
+        { label: '12', exportVal: 3.8, importVal: 0.0 },
+        { label: '18', exportVal: 1.5, importVal: 0.8 },
+        { label: '24', exportVal: 0.2, importVal: 1.6 },
+      ],
+    },
+    week: {
+      netGrid: `${netGridKwh} kWh`,
+      gridExport: `${gridExportMwh} MWh`,
+      earnings: `₹${earningsInr}`,
+      carbon: `${carbonTons} Tons`,
+      activeTooltip: '1 kWh',
+      bars: [
+        { label: '0', exportVal: 0.6, importVal: 0.4 },
+        { label: '6', exportVal: 1.8, importVal: 0.2 },
+        { label: '12', exportVal: 4.0, importVal: 0.0 },
+        { label: '18', exportVal: 2.1, importVal: 1.1 },
+        { label: '24', exportVal: 0.4, importVal: 1.9 },
+      ],
+    },
+    month: {
+      netGrid: '84.5 kWh',
+      gridExport: '1.14 MWh',
+      earnings: '₹620',
+      carbon: '52.4 Tons',
+      activeTooltip: '3.4 kWh',
+      bars: [
+        { label: 'W1', exportVal: 2.4, importVal: 0.8 },
+        { label: 'W2', exportVal: 3.6, importVal: 0.5 },
+        { label: 'W3', exportVal: 4.2, importVal: 0.3 },
+        { label: 'W4', exportVal: 3.1, importVal: 1.0 },
+        { label: 'W5', exportVal: 1.9, importVal: 1.4 },
+      ],
+    },
+  };
+
+  const currentData = chartData[selectedTimeframe];
+
+  return (
+    <View style={styles.root}>
+      {/* 100% Pixel-matched Figma Radial Background Image */}
+      <Image
+        source={require('../../assets/images/bg-gradient.png')}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+      />
+
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+        {/* Header - Matches Figma Node 2125:1682 */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={onBack}
+            activeOpacity={0.7}
+          >
+            <Feather name="chevron-left" size={24} color="#1A1A1A" />
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>Earnings</Text>
+
+          {/* Symmetrical placeholder */}
+          <View style={styles.placeholderButton} />
+        </View>
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2133:255 */}
+          <View style={styles.tabContainer}>
+            <View style={styles.segmentedTabs}>
+              {(['day', 'week', 'month'] as TimeframeType[]).map((tab) => {
+                const isSelected = selectedTimeframe === tab;
+                const tabTitle = tab.charAt(0).toUpperCase() + tab.slice(1);
+                return (
+                  <TouchableOpacity
+                    key={tab}
+                    style={[
+                      styles.tabButton,
+                      isSelected && styles.tabButtonActive,
+                    ]}
+                    onPress={() => setSelectedTimeframe(tab)}
+                    activeOpacity={0.8}
+                  >
+                    <Text
+                      style={[
+                        styles.tabButtonText,
+                        isSelected && styles.tabButtonTextActive,
+                      ]}
+                    >
+                      {tabTitle}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Net Grid Chart Card - Matches Figma Node 2132:2165 */}
+          <View style={styles.chartCard}>
+            {/* Chart Card Header */}
+            <View style={styles.chartHeaderRow}>
+              <Text style={styles.chartTitle}>NET GRID</Text>
+              <View style={styles.batteryIconBadge}>
+                <MaterialCommunityIcons
+                  name="battery-charging-medium"
+                  size={22}
+                  color="#1A1A1A"
+                />
+              </View>
+            </View>
+
+            {/* Interactive Graph Display */}
+            <View style={styles.graphContainer}>
+              {/* Tooltip badge */}
+              <View style={[styles.tooltipContainer, { left: 88 }]}>
+                <View style={styles.tooltipPill}>
+                  <Text style={styles.tooltipText}>{currentData.activeTooltip}</Text>
+                </View>
+                <View style={styles.tooltipLine} />
+              </View>
+
+              {/* Graph Grid Lines and Y-Axis Labels */}
+              <View style={styles.gridLinesContainer}>
+                {/* Horizontal guide lines */}
+                <View style={[styles.gridLineRow, { top: 10 }]}>
+                  <View style={styles.gridLine} />
+                  <Text style={styles.yAxisText}>Imported</Text>
+                </View>
+                <View style={[styles.gridLineRow, { top: 32 }]}>
+                  <View style={styles.gridLine} />
+                  <Text style={styles.yAxisText}>4 kW</Text>
+                </View>
+                <View style={[styles.gridLineRow, { top: 62 }]}>
+                  <View style={styles.gridLine} />
+                  <Text style={styles.yAxisText}>2 kW</Text>
+                </View>
+                <View style={[styles.gridLineRow, { top: 92 }]}>
+                  <View style={[styles.gridLine, styles.gridLineZero]} />
+                  <Text style={styles.yAxisText}>0 kW</Text>
+                </View>
+                <View style={[styles.gridLineRow, { top: 122 }]}>
+                  <View style={styles.gridLine} />
+                  <Text style={styles.yAxisText}>2 kW</Text>
+                </View>
+                <View style={[styles.gridLineRow, { top: 152 }]}>
+                  <View style={styles.gridLine} />
+                  <Text style={styles.yAxisText}>4 kW</Text>
+                </View>
+              </View>
+
+              {/* Energy Waves Visual Graphic */}
+              <View style={styles.chartVisualArea}>
+                {currentData.bars.map((item, idx) => {
+                  const isSelected = idx === selectedPointIndex;
+                  const exportHeight = (item.exportVal / 4.0) * 70;
+                  const importHeight = (item.importVal / 4.0) * 55;
+
+                  return (
+                    <TouchableOpacity
+                      key={idx}
+                      style={styles.chartColumn}
+                      activeOpacity={0.8}
+                      onPress={() => setSelectedPointIndex(idx)}
+                    >
+                      {/* Export Bar (Upper - Green/Blue gradient) */}
+                      <View style={styles.exportBarWrapper}>
+                        <LinearGradient
+                          colors={
+                            isSelected
+                              ? ['#007AFE', '#60A5FA', 'rgba(96,165,250,0.15)']
+                              : ['rgba(0,122,254,0.6)', 'rgba(96,165,250,0.3)', 'transparent']
+                          }
+                          start={{ x: 0.5, y: 0 }}
+                          end={{ x: 0.5, y: 1 }}
+                          style={[
+                            styles.barPill,
+                            { height: Math.max(exportHeight, 14) },
+                          ]}
+                        />
+                      </View>
+
+                      {/* Zero baseline separator */}
+                      <View
+                        style={[
+                          styles.columnCenterDot,
+                          isSelected && styles.columnCenterDotActive,
+                        ]}
+                      />
+
+                      {/* Import Bar (Lower - Amber/Red gradient) */}
+                      <View style={styles.importBarWrapper}>
+                        <LinearGradient
+                          colors={
+                            isSelected
+                              ? ['rgba(245,158,11,0.2)', '#F59E0B', '#D97706']
+                              : ['transparent', 'rgba(245,158,11,0.3)', 'rgba(245,158,11,0.6)']
+                          }
+                          start={{ x: 0.5, y: 0 }}
+                          end={{ x: 0.5, y: 1 }}
+                          style={[
+                            styles.barPill,
+                            { height: Math.max(importHeight, 8) },
+                          ]}
+                        />
+                      </View>
+
+                      {/* X-Axis Label */}
+                      <Text
+                        style={[
+                          styles.xAxisLabel,
+                          isSelected && styles.xAxisLabelActive,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Pricing Section (Buy Price & Sell Price) - Matches Figma Node 2132:2251 */}
+            <View style={styles.pricingRow}>
+              {/* Buy Price */}
+              <View style={styles.priceItem}>
+                <View style={styles.priceLabelRow}>
+                  <View style={[styles.priceDot, { backgroundColor: '#10B981' }]} />
+                  <Text style={styles.priceLabel}>Buy Price</Text>
+                </View>
+                <View style={styles.priceValueRow}>
+                  <Text style={styles.priceValue}>₹{buyPrice}</Text>
+                  <Text style={styles.priceUnit}>/kWh</Text>
+                </View>
+              </View>
+
+              {/* Sell Price */}
+              <View style={[styles.priceItem, { alignItems: 'flex-end' }]}>
+                <View style={styles.priceLabelRow}>
+                  <View style={[styles.priceDot, { backgroundColor: '#F59E0B' }]} />
+                  <Text style={styles.priceLabel}>Sell Price</Text>
+                </View>
+                <View style={styles.priceValueRow}>
+                  <Text style={styles.priceValue}>₹{sellPrice}</Text>
+                  <Text style={styles.priceUnit}>/kWh</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4543 */}
+          <View style={styles.categoryCardContainer}>
+            <View style={styles.categoryGrid}>
+              {/* Row 1 */}
+              <View style={styles.categoryRow}>
+                {/* 1. Net Grid */}
+                <View style={styles.metricCard}>
+                  <View style={styles.metricIconBox}>
+                    <Feather name="zap" size={20} color="#007AFF" />
+                  </View>
+                  <View style={styles.metricTextWrapper}>
+                    <Text style={styles.metricLabel}>Net Grid</Text>
+                    <Text style={styles.metricValue}>{currentData.netGrid}</Text>
+                  </View>
+                </View>
+
+                {/* 2. Grid Export */}
+                <View style={styles.metricCard}>
+                  <View style={styles.metricIconBox}>
+                    <Feather name="power" size={20} color="#007AFF" />
+                  </View>
+                  <View style={styles.metricTextWrapper}>
+                    <Text style={styles.metricLabel}>Grid Export</Text>
+                    <Text style={styles.metricValue}>{currentData.gridExport}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Row 2 */}
+              <View style={styles.categoryRow}>
+                {/* 3. Earnings */}
+                <View style={styles.metricCard}>
+                  <View style={styles.metricIconBox}>
+                    <Ionicons name="wallet-outline" size={20} color="#F59E0B" />
+                  </View>
+                  <View style={styles.metricTextWrapper}>
+                    <Text style={styles.metricLabel}>Earnings</Text>
+                    <Text style={styles.metricValue}>{currentData.earnings}</Text>
+                  </View>
+                </View>
+
+                {/* 4. Carbon */}
+                <View style={styles.metricCard}>
+                  <View style={styles.metricIconBox}>
+                    <Ionicons name="leaf-outline" size={20} color="#10B981" />
+                  </View>
+                  <View style={styles.metricTextWrapper}>
+                    <Text style={styles.metricLabel}>Carbon</Text>
+                    <Text style={styles.metricValue}>{currentData.carbon}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#E8E8ED',
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    height: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+  },
+  backButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  placeholderButton: {
+    width: 48,
+    height: 48,
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    letterSpacing: 0.32,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 130, // Clearance for floating tab bar
+    gap: 20,
+  },
+  tabContainer: {
+    width: '100%',
+  },
+  segmentedTabs: {
+    height: 36,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 2,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  tabButton: {
+    flex: 1,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  tabButtonActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  tabButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  tabButtonTextActive: {
+    color: '#1A1A1A',
+  },
+  chartCard: {
+    backgroundColor: '#F5F5F7',
+    borderRadius: 20,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  chartHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#747474',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  batteryIconBadge: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  graphContainer: {
+    height: 195,
+    position: 'relative',
+    justifyContent: 'center',
+    marginVertical: 4,
+  },
+  tooltipContainer: {
+    position: 'absolute',
+    top: 0,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  tooltipPill: {
+    backgroundColor: '#007AFE',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  tooltipText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  tooltipLine: {
+    width: 1,
+    height: 145,
+    backgroundColor: 'rgba(0, 122, 254, 0.35)',
+    marginTop: 4,
+  },
+  gridLinesContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 24,
+  },
+  gridLineRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  gridLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(36, 51, 86, 0.08)',
+    marginRight: 10,
+  },
+  gridLineZero: {
+    backgroundColor: 'rgba(36, 51, 86, 0.16)',
+  },
+  yAxisText: {
+    fontSize: 10,
+    color: 'rgba(36, 51, 86, 0.45)',
+    width: 48,
+    textAlign: 'right',
+  },
+  chartVisualArea: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingRight: 55, // space for Y-axis text
+    height: '100%',
+    alignItems: 'center',
+  },
+  chartColumn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  exportBarWrapper: {
+    height: 72,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  importBarWrapper: {
+    height: 58,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  barPill: {
+    width: 16,
+    borderRadius: 8,
+  },
+  columnCenterDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(36, 51, 86, 0.3)',
+    marginVertical: 3,
+  },
+  columnCenterDotActive: {
+    backgroundColor: '#007AFE',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  xAxisLabel: {
+    fontSize: 11,
+    color: 'rgba(36, 51, 86, 0.4)',
+    marginTop: 6,
+    fontWeight: '500',
+  },
+  xAxisLabelActive: {
+    color: '#007AFE',
+    fontWeight: '700',
+  },
+  pricingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 18,
+    paddingTop: 14,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  priceItem: {
+    flex: 1,
+  },
+  priceLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  priceDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  priceLabel: {
+    fontSize: 13,
+    color: '#9E9EA0',
+    fontWeight: '400',
+  },
+  priceValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 2,
+  },
+  priceValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  priceUnit: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#9E9EA0',
+  },
+  categoryCardContainer: {
+    backgroundColor: 'rgba(245, 245, 247, 0.85)',
+    borderRadius: 24,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  categoryGrid: {
+    gap: 12,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  metricCard: {
+    flex: 1,
+    backgroundColor: '#F5F5F7',
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.7)',
+    padding: 16,
+    gap: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  metricIconBox: {
+    width: 32,
+    height: 32,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  metricTextWrapper: {
+    gap: 2,
+  },
+  metricLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#747474',
+  },
+  metricValue: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+});

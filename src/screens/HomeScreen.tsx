@@ -46,6 +46,7 @@ interface HomeScreenProps {
   onPressBatterySoc?: () => void;
   onPressSourceMonitoring?: () => void;
   onPressLoadConsumption?: () => void;
+  onPressEarnings?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -54,6 +55,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onPressBatterySoc,
   onPressSourceMonitoring,
   onPressLoadConsumption,
+  onPressEarnings,
 }) => {
   const [telemetry, setTelemetry] = useState<EnergyTelemetry>(INITIAL_TELEMETRY);
   const [refreshing, setRefreshing] = useState(false);
@@ -196,11 +198,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <SavingsSection
                 weeklyEarnings={telemetry.weeklyEarningsInr}
                 co2Savings={telemetry.co2SavingsTons}
-                onPressEarnings={() =>
-                  Alert.alert('Weekly Earnings', `Total solar export earnings: ₹${telemetry.weeklyEarningsInr}`)
+                onPressEarnings={
+                  onPressEarnings ||
+                  (() =>
+                    Alert.alert('Weekly Earnings', `Total solar export earnings: ₹${telemetry.weeklyEarningsInr}`)
+                  )
                 }
-                onPressCo2={() =>
-                  Alert.alert('Carbon Footprint', `You have reduced ${telemetry.co2SavingsTons} tons of CO₂ emissions!`)
+                onPressCo2={
+                  onPressEarnings ||
+                  (() =>
+                    Alert.alert('Carbon Footprint', `You have reduced ${telemetry.co2SavingsTons} tons of CO₂ emissions!`)
+                  )
                 }
               />
 
