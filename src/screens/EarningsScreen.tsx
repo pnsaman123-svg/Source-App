@@ -719,7 +719,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
             </View>
           )}
 
-          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4633 / 2136:4579 / 2136:4543 */}
+          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4633 */}
           <View style={styles.categoryCardContainer}>
             <View style={styles.categoryGrid}>
               {/* Row 1 */}
@@ -733,8 +733,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                   activeOpacity={0.8}
                   onPress={() => setChartMode('netGrid')}
                 >
-                  <View style={styles.metricIconBox}>
-                    <Feather name="zap" size={20} color="#007AFF" />
+                  <View style={styles.metricTopRow}>
+                    <View style={styles.metricIconBox}>
+                      <Feather name="zap" size={22} color="#1A1A1A" />
+                    </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Net Grid</Text>
@@ -751,8 +753,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                   activeOpacity={0.8}
                   onPress={() => setChartMode('gridEnergy')}
                 >
-                  <View style={styles.metricIconBox}>
-                    <Feather name="power" size={20} color="#007AFF" />
+                  <View style={styles.metricTopRow}>
+                    <View style={styles.metricIconBox}>
+                      <Feather name="power" size={22} color="#1A1A1A" />
+                    </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Grid Export</Text>
@@ -772,8 +776,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                   activeOpacity={0.8}
                   onPress={() => setChartMode('earnings')}
                 >
-                  <View style={styles.metricIconBox}>
-                    <Ionicons name="wallet-outline" size={20} color="#F59E0B" />
+                  <View style={styles.metricTopRow}>
+                    <View style={styles.metricIconBox}>
+                      <Ionicons name="wallet-outline" size={22} color="#1A1A1A" />
+                    </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Earnings</Text>
@@ -790,8 +796,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                   activeOpacity={0.8}
                   onPress={() => setChartMode('carbon')}
                 >
-                  <View style={styles.metricIconBox}>
-                    <Ionicons name="leaf-outline" size={20} color="#10B981" />
+                  <View style={styles.metricTopRow}>
+                    <View style={styles.metricIconBox}>
+                      <Ionicons name="leaf-outline" size={22} color="#1A1A1A" />
+                    </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
                     <Text style={styles.metricLabel}>Carbon</Text>
@@ -1177,16 +1185,18 @@ const styles = StyleSheet.create({
     color: '#9E9EA0',
   },
   categoryCardContainer: {
-    backgroundColor: 'rgba(245, 245, 247, 0.85)',
-    borderRadius: 24,
+    backgroundColor: 'rgba(245, 245, 247, 0.75)',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     borderWidth: 0.5,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 16,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   categoryGrid: {
     gap: 12,
@@ -1198,11 +1208,11 @@ const styles = StyleSheet.create({
   metricCard: {
     flex: 1,
     backgroundColor: '#F5F5F7',
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 0.5,
-    borderColor: 'rgba(255, 255, 255, 0.7)',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     padding: 16,
-    gap: 18,
+    gap: 22,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
@@ -1433,6 +1443,11 @@ const styles = StyleSheet.create({
     color: '#49B02D',
     fontWeight: '700',
   },
+  metricTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   metricIconBox: {
     width: 32,
     height: 32,
@@ -1448,7 +1463,7 @@ const styles = StyleSheet.create({
     color: '#747474',
   },
   metricValue: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     color: '#1A1A1A',
   },
