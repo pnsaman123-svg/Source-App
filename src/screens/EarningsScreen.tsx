@@ -737,7 +737,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Feather name="zap" size={24} color="#007AFE" />
+                      <Feather name="zap" size={24} color="#1A1A1A" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -757,7 +757,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Feather name="power" size={24} color="#007AFE" />
+                      <Feather name="power" size={24} color="#1A1A1A" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -780,7 +780,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Ionicons name="wallet-outline" size={24} color="#FFB800" />
+                      <Ionicons name="wallet-outline" size={24} color="#1A1A1A" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
@@ -800,7 +800,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 >
                   <View style={styles.metricTopRow}>
                     <View style={styles.metricIconBox}>
-                      <Ionicons name="leaf-outline" size={24} color="#34C759" />
+                      <Ionicons name="leaf-outline" size={24} color="#1A1A1A" />
                     </View>
                   </View>
                   <View style={styles.metricTextWrapper}>
