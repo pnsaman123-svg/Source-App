@@ -5,12 +5,7 @@
     "owner": "amanpns",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/house.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#EBEEF2"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -23,10 +18,6 @@
     "web": {
       "favicon": "./assets/images/house.png"
     },
-    "plugins": [
-      "expo-asset",
-      "expo-font"
-    ],
     "extra": {
       "eas": {
         "projectId": "3a270573-e126-4ef5-a69b-1bd95088b6a6"

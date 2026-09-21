@@ -14,8 +14,6 @@
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "expo": "~57.0.24",
-    "expo-asset": "~12.0.7",
-    "expo-font": "~14.0.9",
     "expo-linear-gradient": "~14.0.1",
     "expo-status-bar": "~3.0.8",
     "react": "19.2.3",
