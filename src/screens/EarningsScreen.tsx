@@ -773,7 +773,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.metricCard,
-                    chartMode === 'earnings' && styles.metricCardActiveAmber,
+                    chartMode === 'earnings' && styles.metricCardActive,
                   ]}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('earnings')}
@@ -793,7 +793,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.metricCard,
-                    chartMode === 'carbon' && styles.metricCardActiveGreen,
+                    chartMode === 'carbon' && styles.metricCardActive,
                   ]}
                   activeOpacity={0.8}
                   onPress={() => setChartMode('carbon')}
@@ -909,11 +909,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: 'rgba(255, 255, 255, 0.8)',
     padding: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
     height: 385,
     justifyContent: 'space-between',
   },
@@ -1202,11 +1197,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 140, // Extends all the way behind & below the floating navigation bar
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
     flexGrow: 1,
   },
   categoryGrid: {
@@ -1220,25 +1210,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    borderWidth: 0.5,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     padding: 16,
     gap: 22,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 5,
-    elevation: 2,
   },
   metricCardActive: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#007AFE',
+    borderColor: '#1A1A1A',
     borderWidth: 1.5,
-    shadowColor: '#007AFE',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 3,
   },
   // Earnings Chart Specific Styles
   earningsChartContainer: {
@@ -1343,23 +1323,13 @@ const styles = StyleSheet.create({
   },
   metricCardActiveAmber: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#FFB800',
+    borderColor: '#1A1A1A',
     borderWidth: 1.5,
-    shadowColor: '#FFB800',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
   },
   metricCardActiveGreen: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#34C759',
+    borderColor: '#1A1A1A',
     borderWidth: 1.5,
-    shadowColor: '#34C759',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
   },
   // Carbon Emission Specific Styles
   carbonChartContainer: {
