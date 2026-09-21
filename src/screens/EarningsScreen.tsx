@@ -41,6 +41,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
   const [chartMode, setChartMode] = useState<ChartModeType>('earnings'); // 'earnings' (2136:2842), 'gridEnergy' (2132:2261), 'netGrid' (2125:1286), 'carbon'
   const [selectedEarningsIndex, setSelectedEarningsIndex] = useState<number>(5); // Sat (₹24) default peak
   const [selectedGridEnergyIndex, setSelectedGridEnergyIndex] = useState<number>(3); // Day 19 default peak
+  const [selectedCarbonIndex, setSelectedCarbonIndex] = useState<number>(4); // Bar 5 (1.5 Ton) default peak
   const [selectedNetGridIndex, setSelectedNetGridIndex] = useState<number>(1);
 
   // 1. Earnings (Figma 2136:2842) golden area data
@@ -123,7 +124,65 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
     },
   };
 
-  // 3. Net Grid (Figma 2125:1286) data
+  // 3. Carbon Emission (Figma 2136:3616) 12-bar matrix data
+  const carbonEmissionData = {
+    day: {
+      tooltip: '0.45 Ton',
+      yMax: 1.75,
+      bars: [
+        { label: '02', val: 0.35 },
+        { label: '04', val: 0.55 },
+        { label: '06', val: 0.8 },
+        { label: '08', val: 1.1 },
+        { label: '10', val: 1.45 },
+        { label: '12', val: 0.8 },
+        { label: '14', val: 0.7 },
+        { label: '16', val: 0.65 },
+        { label: '18', val: 0.8 },
+        { label: '20', val: 0.9 },
+        { label: '22', val: 0.75 },
+        { label: '24', val: 0.78 },
+      ],
+    },
+    week: {
+      tooltip: '1.5 Ton',
+      yMax: 1.75,
+      bars: [
+        { label: '1', val: 0.85 },
+        { label: '2', val: 1.05 },
+        { label: '3', val: 1.20 },
+        { label: '4', val: 1.35 },
+        { label: '5', val: 1.50 },
+        { label: '6', val: 0.80 },
+        { label: '7', val: 0.75 },
+        { label: '8', val: 0.70 },
+        { label: '9', val: 0.85 },
+        { label: '10', val: 0.95 },
+        { label: '11', val: 0.80 },
+        { label: '12', val: 0.82 },
+      ],
+    },
+    month: {
+      tooltip: '1.65 Ton',
+      yMax: 1.75,
+      bars: [
+        { label: 'Jan', val: 0.9 },
+        { label: 'Feb', val: 1.1 },
+        { label: 'Mar', val: 1.25 },
+        { label: 'Apr', val: 1.4 },
+        { label: 'May', val: 1.65 },
+        { label: 'Jun', val: 0.95 },
+        { label: 'Jul', val: 0.8 },
+        { label: 'Aug', val: 0.75 },
+        { label: 'Sep', val: 0.9 },
+        { label: 'Oct', val: 1.05 },
+        { label: 'Nov', val: 0.85 },
+        { label: 'Dec', val: 0.9 },
+      ],
+    },
+  };
+
+  // 4. Net Grid (Figma 2125:1286) data
   const netGridData = {
     day: {
       tooltip: '1.2 kWh',
@@ -159,6 +218,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
 
   const currentEarnings = earningsChartData[selectedTimeframe];
   const currentGridEnergy = gridEnergyData[selectedTimeframe];
+  const currentCarbon = carbonEmissionData[selectedTimeframe];
   const currentNetGrid = netGridData[selectedTimeframe];
 
   return (
@@ -318,24 +378,106 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 </View>
               </View>
             </View>
-          ) : chartMode === 'gridEnergy' || chartMode === 'carbon' ? (
-            /* ================= GRID ENERGY / CARBON CHART (Figma Node 2132:2261) ================= */
+          ) : chartMode === 'carbon' ? (
+            /* ================= CARBON EMISSION CHART (Figma Node 2136:3616) ================= */
+            <View style={styles.chartCard}>
+              {/* Header: Carbon Emission + Leaf Icon */}
+              <View style={styles.chartHeaderRow}>
+                <Text style={styles.chartTitle}>CARBON EMISSION</Text>
+                <View style={styles.batteryIconBadge}>
+                  <Ionicons name="leaf-outline" size={24} color="#1A1A1A" />
+                </View>
+              </View>
+
+              {/* 12-Bar Green Gradient Matrix Display */}
+              <View style={styles.carbonChartContainer}>
+                {/* Horizontal Guide Lines & Y-Axis (1.75 down to 0.25 Tons) */}
+                <View style={styles.gridLinesContainer}>
+                  {[1.75, 1.50, 1.25, 1.00, 0.75, 0.50, 0.25].map((val, i) => (
+                    <View key={val} style={[styles.gridLineRow, { top: i * 29 + 6 }]}>
+                      <View style={styles.dottedGuideLine} />
+                      <Text style={styles.yAxisCarbonText}>{val.toFixed(2)}</Text>
+                    </View>
+                  ))}
+                  {/* Baseline solid line */}
+                  <View style={styles.carbonBaseline} />
+                </View>
+
+                {/* 12 Green Gradient Bars */}
+                <View style={styles.carbonBarsWrapper}>
+                  {currentCarbon.bars.map((bar, idx) => {
+                    const isSelected = idx === selectedCarbonIndex;
+                    const barHeight = (bar.val / 1.75) * 175;
+
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={styles.carbonBarColumn}
+                        activeOpacity={0.8}
+                        onPress={() => setSelectedCarbonIndex(idx)}
+                      >
+                        {/* Tooltip & Green Indicator Line on selected bar (e.g. Bar 5) */}
+                        {isSelected && (
+                          <View
+                            style={[
+                              styles.carbonTooltipWrapper,
+                              { bottom: barHeight + 4 },
+                            ]}
+                          >
+                            <View style={styles.carbonTooltipPill}>
+                              <Text style={styles.carbonTooltipText}>
+                                {bar.val} Ton
+                              </Text>
+                            </View>
+                            <View style={styles.greenIndicatorLine} />
+                          </View>
+                        )}
+
+                        {/* Bar Gradient Pill */}
+                        <View style={styles.carbonFillWrapper}>
+                          <LinearGradient
+                            colors={
+                              isSelected
+                                ? ['#49B02D', '#33961B']
+                                : ['rgba(73, 176, 45, 0.35)', 'rgba(73, 176, 45, 0.12)']
+                            }
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                            style={[
+                              styles.carbonBarPill,
+                              isSelected && styles.carbonBarPillActive,
+                              { height: Math.max(barHeight, 12) },
+                            ]}
+                          />
+                        </View>
+
+                        {/* X-Axis Number/Month Label */}
+                        <Text
+                          style={[
+                            styles.carbonXLabel,
+                            isSelected && styles.carbonXLabelActive,
+                          ]}
+                        >
+                          {bar.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          ) : chartMode === 'gridEnergy' ? (
+            /* ================= GRID ENERGY CHART (Figma Node 2132:2261) ================= */
             <View style={styles.chartCard}>
               {/* Header: Grid Energy + Transmission Tower Icon */}
               <View style={styles.chartHeaderRow}>
-                <Text style={styles.chartTitle}>
-                  {chartMode === 'carbon' ? 'CARBON OFFSET' : 'GRID ENERGY'}
-                </Text>
+                <Text style={styles.chartTitle}>GRID ENERGY</Text>
                 <View style={styles.batteryIconBadge}>
-                  {chartMode === 'carbon' ? (
-                    <Ionicons name="leaf-outline" size={22} color="#10B981" />
-                  ) : (
-                    <MaterialCommunityIcons
-                      name="transmission-tower"
-                      size={22}
-                      color="#1A1A1A"
-                    />
-                  )}
+                  <MaterialCommunityIcons
+                    name="transmission-tower"
+                    size={22}
+                    color="#1A1A1A"
+                  />
                 </View>
               </View>
 
@@ -349,9 +491,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                       <Text style={styles.yAxisText}>{val}</Text>
                     </View>
                   ))}
-                  <Text style={styles.unitLabel}>
-                    {chartMode === 'carbon' ? 'Tons' : 'kWh'}
-                  </Text>
+                  <Text style={styles.unitLabel}>kWh</Text>
                 </View>
 
                 {/* Interactive Curve & Gradient Wave Area */}
@@ -359,7 +499,6 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                   {currentGridEnergy.points.map((point, idx) => {
                     const isSelected = idx === selectedGridEnergyIndex;
                     const pointHeight = (point.val / 8.0) * 160;
-                    const themeColor = chartMode === 'carbon' ? '#10B981' : '#007AFE';
 
                     return (
                       <TouchableOpacity
@@ -376,26 +515,13 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                               { bottom: pointHeight + 4 },
                             ]}
                           >
-                            <View
-                              style={[
-                                styles.gridEnergyTooltipPill,
-                                chartMode === 'carbon' && { backgroundColor: '#10B981' },
-                              ]}
-                            >
+                            <View style={styles.gridEnergyTooltipPill}>
                               <Text style={styles.tooltipText}>
-                                {point.val} {chartMode === 'carbon' ? 'Tons' : 'kWh'}
+                                {point.val} kWh
                               </Text>
                             </View>
                             {/* Glowing Target Ring */}
-                            <View
-                              style={[
-                                styles.outerGlowRing,
-                                chartMode === 'carbon' && {
-                                  borderColor: '#10B981',
-                                  backgroundColor: 'rgba(16, 185, 129, 0.25)',
-                                },
-                              ]}
-                            >
+                            <View style={styles.outerGlowRing}>
                               <View style={styles.innerGlowDot} />
                             </View>
                           </View>
@@ -406,22 +532,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                           <LinearGradient
                             colors={
                               point.isForecast
-                                ? [
-                                    chartMode === 'carbon' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(0, 122, 254, 0.25)',
-                                    'rgba(96, 165, 250, 0.08)',
-                                    'transparent',
-                                  ]
+                                ? ['rgba(0, 122, 254, 0.25)', 'rgba(96, 165, 250, 0.08)', 'transparent']
                                 : isSelected
-                                ? [
-                                    themeColor,
-                                    chartMode === 'carbon' ? 'rgba(16, 185, 129, 0.45)' : 'rgba(96, 165, 250, 0.45)',
-                                    'rgba(217, 229, 255, 0.1)',
-                                  ]
-                                : [
-                                    chartMode === 'carbon' ? 'rgba(16, 185, 129, 0.55)' : 'rgba(0, 122, 254, 0.55)',
-                                    'rgba(96, 165, 250, 0.2)',
-                                    'transparent',
-                                  ]
+                                ? ['#007AFE', 'rgba(96, 165, 250, 0.45)', 'rgba(217, 229, 255, 0.1)']
+                                : ['rgba(0, 122, 254, 0.55)', 'rgba(96, 165, 250, 0.2)', 'transparent']
                             }
                             start={{ x: 0.5, y: 0 }}
                             end={{ x: 0.5, y: 1 }}
@@ -444,7 +558,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                         <Text
                           style={[
                             styles.gridEnergyXLabel,
-                            isSelected && { color: themeColor, fontWeight: '700' },
+                            isSelected && { color: '#007AFE', fontWeight: '700' },
                           ]}
                         >
                           {point.label}
@@ -1225,6 +1339,99 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 3,
+  },
+  // Carbon Emission Specific Styles
+  carbonChartContainer: {
+    height: 250,
+    position: 'relative',
+    justifyContent: 'flex-end',
+    marginTop: 6,
+  },
+  yAxisCarbonText: {
+    fontSize: 9.5,
+    color: '#8C8C8C',
+    width: 28,
+    textAlign: 'right',
+  },
+  carbonBaseline: {
+    position: 'absolute',
+    left: 0,
+    right: 32,
+    bottom: 0,
+    height: 1,
+    backgroundColor: 'rgba(36, 51, 86, 0.12)',
+  },
+  carbonBarsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingRight: 34,
+    height: 205,
+    alignItems: 'flex-end',
+    zIndex: 5,
+  },
+  carbonBarColumn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: '100%',
+    position: 'relative',
+  },
+  carbonTooltipWrapper: {
+    position: 'absolute',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  carbonTooltipPill: {
+    backgroundColor: '#49B02D',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  carbonTooltipText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  greenIndicatorLine: {
+    width: 1,
+    height: 10,
+    backgroundColor: '#49B02D',
+    marginTop: 2,
+  },
+  carbonFillWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  carbonBarPill: {
+    width: 14,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+    borderBottomLeftRadius: 1,
+    borderBottomRightRadius: 1,
+  },
+  carbonBarPillActive: {
+    width: 15,
+    shadowColor: '#49B02D',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  carbonXLabel: {
+    fontSize: 9.5,
+    color: '#737373',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  carbonXLabelActive: {
+    color: '#49B02D',
+    fontWeight: '700',
   },
   metricIconBox: {
     width: 32,
