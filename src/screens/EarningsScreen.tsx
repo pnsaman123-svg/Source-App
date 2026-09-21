@@ -16,7 +16,7 @@ import { Colors } from '../theme/colors';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type TimeframeType = 'day' | 'week' | 'month';
-type ChartModeType = 'netGrid' | 'gridEnergy' | 'earnings' | 'carbon';
+type ChartModeType = 'earnings' | 'gridEnergy' | 'netGrid' | 'carbon';
 
 interface EarningsScreenProps {
   onBack?: () => void;
@@ -38,45 +38,52 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
   sellPrice = 3.0,
 }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeType>('week');
-  const [chartMode, setChartMode] = useState<ChartModeType>('gridEnergy'); // 'gridEnergy' (2132:2261) or 'netGrid' (2125:1286)
-  const [selectedNetGridIndex, setSelectedNetGridIndex] = useState<number>(1);
+  const [chartMode, setChartMode] = useState<ChartModeType>('earnings'); // 'earnings' (2136:2842), 'gridEnergy' (2132:2261), 'netGrid' (2125:1286), 'carbon'
+  const [selectedEarningsIndex, setSelectedEarningsIndex] = useState<number>(5); // Sat (₹24) default peak
   const [selectedGridEnergyIndex, setSelectedGridEnergyIndex] = useState<number>(3); // Day 19 default peak
+  const [selectedNetGridIndex, setSelectedNetGridIndex] = useState<number>(1);
 
-  // Net Grid (Figma 2125:1286) data
-  const netGridData = {
+  // 1. Earnings (Figma 2136:2842) golden area data
+  const earningsChartData = {
     day: {
-      tooltip: '1.2 kWh',
-      bars: [
-        { label: '0', exportVal: 0.4, importVal: 0.2 },
-        { label: '6', exportVal: 1.2, importVal: 0.1 },
-        { label: '12', exportVal: 3.8, importVal: 0.0 },
-        { label: '18', exportVal: 1.5, importVal: 0.8 },
-        { label: '24', exportVal: 0.2, importVal: 1.6 },
+      tooltip: '₹6',
+      yMax: 25,
+      points: [
+        { label: '04', val: 3 },
+        { label: '08', val: 8 },
+        { label: '12', val: 18 },
+        { label: '16', val: 22 },
+        { label: '20', val: 14 },
+        { label: '24', val: 5 },
       ],
     },
     week: {
-      tooltip: '1 kWh',
-      bars: [
-        { label: '0', exportVal: 0.6, importVal: 0.4 },
-        { label: '6', exportVal: 1.8, importVal: 0.2 },
-        { label: '12', exportVal: 4.0, importVal: 0.0 },
-        { label: '18', exportVal: 2.1, importVal: 1.1 },
-        { label: '24', exportVal: 0.4, importVal: 1.9 },
+      tooltip: '₹24',
+      yMax: 25,
+      points: [
+        { label: 'Mon', val: 12 },
+        { label: 'Tue', val: 16 },
+        { label: 'Wed', val: 19 },
+        { label: 'Thu', val: 14 },
+        { label: 'Fri', val: 18 },
+        { label: 'Sat', val: 24 },
+        { label: 'Sun', val: 17 },
       ],
     },
     month: {
-      tooltip: '3.4 kWh',
-      bars: [
-        { label: 'W1', exportVal: 2.4, importVal: 0.8 },
-        { label: 'W2', exportVal: 3.6, importVal: 0.5 },
-        { label: 'W3', exportVal: 4.2, importVal: 0.3 },
-        { label: 'W4', exportVal: 3.1, importVal: 1.0 },
-        { label: 'W5', exportVal: 1.9, importVal: 1.4 },
+      tooltip: '₹185',
+      yMax: 250,
+      points: [
+        { label: 'W1', val: 110 },
+        { label: 'W2', val: 145 },
+        { label: 'W3', val: 185 },
+        { label: 'W4', val: 160 },
+        { label: 'W5', val: 120 },
       ],
     },
   };
 
-  // Grid Energy (Figma 2132:2261) continuous curve data
+  // 2. Grid Energy (Figma 2132:2261) continuous curve data
   const gridEnergyData = {
     day: {
       tooltip: '2.4 kWh',
@@ -116,8 +123,43 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
     },
   };
 
-  const currentNetGrid = netGridData[selectedTimeframe];
+  // 3. Net Grid (Figma 2125:1286) data
+  const netGridData = {
+    day: {
+      tooltip: '1.2 kWh',
+      bars: [
+        { label: '0', exportVal: 0.4, importVal: 0.2 },
+        { label: '6', exportVal: 1.2, importVal: 0.1 },
+        { label: '12', exportVal: 3.8, importVal: 0.0 },
+        { label: '18', exportVal: 1.5, importVal: 0.8 },
+        { label: '24', exportVal: 0.2, importVal: 1.6 },
+      ],
+    },
+    week: {
+      tooltip: '1 kWh',
+      bars: [
+        { label: '0', exportVal: 0.6, importVal: 0.4 },
+        { label: '6', exportVal: 1.8, importVal: 0.2 },
+        { label: '12', exportVal: 4.0, importVal: 0.0 },
+        { label: '18', exportVal: 2.1, importVal: 1.1 },
+        { label: '24', exportVal: 0.4, importVal: 1.9 },
+      ],
+    },
+    month: {
+      tooltip: '3.4 kWh',
+      bars: [
+        { label: 'W1', exportVal: 2.4, importVal: 0.8 },
+        { label: 'W2', exportVal: 3.6, importVal: 0.5 },
+        { label: 'W3', exportVal: 4.2, importVal: 0.3 },
+        { label: 'W4', exportVal: 3.1, importVal: 1.0 },
+        { label: 'W5', exportVal: 1.9, importVal: 1.4 },
+      ],
+    },
+  };
+
+  const currentEarnings = earningsChartData[selectedTimeframe];
   const currentGridEnergy = gridEnergyData[selectedTimeframe];
+  const currentNetGrid = netGridData[selectedTimeframe];
 
   return (
     <View style={styles.root}>
@@ -129,7 +171,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
       />
 
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        {/* Header - Matches Figma Node 2132:2281 / 2125:1682 */}
+        {/* Header - Matches Figma Node 2136:2862 / 2132:2281 / 2125:1682 */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -150,7 +192,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2132:2289 */}
+          {/* Segmented Tabs (Day | Week | Month) - Matches Figma Node 2136:2870 */}
           <View style={styles.tabContainer}>
             <View style={styles.segmentedTabs}>
               {(['day', 'week', 'month'] as TimeframeType[]).map((tab) => {
@@ -180,19 +222,120 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
             </View>
           </View>
 
-          {/* MAIN CHART CARD */}
-          {chartMode === 'gridEnergy' ? (
-            /* ================= GRID ENERGY CHART (Figma Node 2132:2261) ================= */
+          {/* ================= MAIN CHART CARD ================= */}
+          {chartMode === 'earnings' ? (
+            /* ================= EARNINGS CHART (Figma Node 2136:2842) ================= */
             <View style={styles.chartCard}>
-              {/* Header: Grid Energy + Transmission Tower Icon */}
+              {/* Header: Earnings + Money Icon */}
               <View style={styles.chartHeaderRow}>
-                <Text style={styles.chartTitle}>GRID ENERGY</Text>
+                <Text style={styles.chartTitle}>EARNINGS</Text>
                 <View style={styles.batteryIconBadge}>
-                  <MaterialCommunityIcons
-                    name="transmission-tower"
+                  <Ionicons
+                    name="cash-outline"
                     size={22}
                     color="#1A1A1A"
                   />
+                </View>
+              </View>
+
+              {/* Earnings Matrix & Continuous Golden Area Chart */}
+              <View style={styles.earningsChartContainer}>
+                {/* Horizontal Guide Lines & Matrix Grid with Y-Axis */}
+                <View style={styles.gridLinesContainer}>
+                  {[25, 20, 15, 10, 5].map((val, i) => (
+                    <View key={val} style={[styles.gridLineRow, { top: i * 42 + 6 }]}>
+                      {/* Dotted guideline */}
+                      <View style={styles.dottedGuideLine} />
+                      <Text style={styles.yAxisEarningsText}>{val}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Golden Area Wave Columns */}
+                <View style={styles.earningsColumnsWrapper}>
+                  {currentEarnings.points.map((point, idx) => {
+                    const isSelected = idx === selectedEarningsIndex;
+                    const pointHeight = (point.val / currentEarnings.yMax) * 165;
+
+                    return (
+                      <TouchableOpacity
+                        key={idx}
+                        style={styles.earningsColumn}
+                        activeOpacity={0.8}
+                        onPress={() => setSelectedEarningsIndex(idx)}
+                      >
+                        {/* Highlight Point & Golden Tooltip Pill */}
+                        {isSelected && (
+                          <View
+                            style={[
+                              styles.earningsHighlightWrapper,
+                              { bottom: pointHeight + 2 },
+                            ]}
+                          >
+                            <View style={styles.earningsTooltipPill}>
+                              <Text style={styles.earningsTooltipText}>
+                                ₹{point.val}
+                              </Text>
+                            </View>
+                            {/* Dashed vertical indicator line */}
+                            <View style={styles.amberIndicatorLine} />
+                            {/* Glowing Amber Point */}
+                            <View style={styles.amberOuterRing}>
+                              <View style={styles.amberInnerDot} />
+                            </View>
+                          </View>
+                        )}
+
+                        {/* Column Golden Gradient Pill Fill */}
+                        <View style={styles.earningsFillWrapper}>
+                          <LinearGradient
+                            colors={
+                              isSelected
+                                ? ['#FFC400', 'rgba(255, 196, 0, 0.45)', 'rgba(255, 196, 0, 0.08)']
+                                : ['rgba(255, 196, 0, 0.55)', 'rgba(255, 196, 0, 0.2)', 'transparent']
+                            }
+                            start={{ x: 0.5, y: 0 }}
+                            end={{ x: 0.5, y: 1 }}
+                            style={[
+                              styles.earningsBarPill,
+                              { height: Math.max(pointHeight, 14) },
+                            ]}
+                          />
+                        </View>
+
+                        {/* X-Axis Day Label (Mon, Tue, Wed, ...) */}
+                        <Text
+                          style={[
+                            styles.earningsXLabel,
+                            isSelected && styles.earningsXLabelActive,
+                          ]}
+                        >
+                          {point.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+          ) : chartMode === 'gridEnergy' || chartMode === 'carbon' ? (
+            /* ================= GRID ENERGY / CARBON CHART (Figma Node 2132:2261) ================= */
+            <View style={styles.chartCard}>
+              {/* Header: Grid Energy + Transmission Tower Icon */}
+              <View style={styles.chartHeaderRow}>
+                <Text style={styles.chartTitle}>
+                  {chartMode === 'carbon' ? 'CARBON OFFSET' : 'GRID ENERGY'}
+                </Text>
+                <View style={styles.batteryIconBadge}>
+                  {chartMode === 'carbon' ? (
+                    <Ionicons name="leaf-outline" size={22} color="#10B981" />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="transmission-tower"
+                      size={22}
+                      color="#1A1A1A"
+                    />
+                  )}
                 </View>
               </View>
 
@@ -206,7 +349,9 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                       <Text style={styles.yAxisText}>{val}</Text>
                     </View>
                   ))}
-                  <Text style={styles.unitLabel}>kWh</Text>
+                  <Text style={styles.unitLabel}>
+                    {chartMode === 'carbon' ? 'Tons' : 'kWh'}
+                  </Text>
                 </View>
 
                 {/* Interactive Curve & Gradient Wave Area */}
@@ -214,6 +359,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                   {currentGridEnergy.points.map((point, idx) => {
                     const isSelected = idx === selectedGridEnergyIndex;
                     const pointHeight = (point.val / 8.0) * 160;
+                    const themeColor = chartMode === 'carbon' ? '#10B981' : '#007AFE';
 
                     return (
                       <TouchableOpacity
@@ -222,7 +368,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                         activeOpacity={0.8}
                         onPress={() => setSelectedGridEnergyIndex(idx)}
                       >
-                        {/* Tooltip & Highlight point on selected / peak node */}
+                        {/* Tooltip & Highlight point on selected node */}
                         {isSelected && (
                           <View
                             style={[
@@ -230,25 +376,52 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                               { bottom: pointHeight + 4 },
                             ]}
                           >
-                            <View style={styles.gridEnergyTooltipPill}>
-                              <Text style={styles.tooltipText}>{point.val} kWh</Text>
+                            <View
+                              style={[
+                                styles.gridEnergyTooltipPill,
+                                chartMode === 'carbon' && { backgroundColor: '#10B981' },
+                              ]}
+                            >
+                              <Text style={styles.tooltipText}>
+                                {point.val} {chartMode === 'carbon' ? 'Tons' : 'kWh'}
+                              </Text>
                             </View>
                             {/* Glowing Target Ring */}
-                            <View style={styles.outerGlowRing}>
+                            <View
+                              style={[
+                                styles.outerGlowRing,
+                                chartMode === 'carbon' && {
+                                  borderColor: '#10B981',
+                                  backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                                },
+                              ]}
+                            >
                               <View style={styles.innerGlowDot} />
                             </View>
                           </View>
                         )}
 
-                        {/* Column Gradient / Area Fill */}
+                        {/* Column Gradient Fill */}
                         <View style={styles.areaFillWrapper}>
                           <LinearGradient
                             colors={
                               point.isForecast
-                                ? ['rgba(0, 122, 254, 0.25)', 'rgba(96, 165, 250, 0.08)', 'transparent']
+                                ? [
+                                    chartMode === 'carbon' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(0, 122, 254, 0.25)',
+                                    'rgba(96, 165, 250, 0.08)',
+                                    'transparent',
+                                  ]
                                 : isSelected
-                                ? ['#007AFE', 'rgba(96, 165, 250, 0.45)', 'rgba(217, 229, 255, 0.1)']
-                                : ['rgba(0, 122, 254, 0.55)', 'rgba(96, 165, 250, 0.2)', 'transparent']
+                                ? [
+                                    themeColor,
+                                    chartMode === 'carbon' ? 'rgba(16, 185, 129, 0.45)' : 'rgba(96, 165, 250, 0.45)',
+                                    'rgba(217, 229, 255, 0.1)',
+                                  ]
+                                : [
+                                    chartMode === 'carbon' ? 'rgba(16, 185, 129, 0.55)' : 'rgba(0, 122, 254, 0.55)',
+                                    'rgba(96, 165, 250, 0.2)',
+                                    'transparent',
+                                  ]
                             }
                             start={{ x: 0.5, y: 0 }}
                             end={{ x: 0.5, y: 1 }}
@@ -260,7 +433,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                           />
                         </View>
 
-                        {/* Forecast indicator line */}
+                        {/* Forecast indicator */}
                         {point.isForecast && (
                           <View style={styles.forecastTagRow}>
                             <View style={styles.forecastDash} />
@@ -271,7 +444,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                         <Text
                           style={[
                             styles.gridEnergyXLabel,
-                            isSelected && styles.xAxisLabelActive,
+                            isSelected && { color: themeColor, fontWeight: '700' },
                           ]}
                         >
                           {point.label}
@@ -432,7 +605,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
             </View>
           )}
 
-          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4579 / 2136:4543 */}
+          {/* Category Cards (2x2 Earning & Grid Cards) - Matches Figma Node 2136:4633 / 2136:4579 / 2136:4543 */}
           <View style={styles.categoryCardContainer}>
             <View style={styles.categoryGrid}>
               {/* Row 1 */}
@@ -480,10 +653,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.metricCard,
-                    chartMode === 'earnings' && styles.metricCardActive,
+                    chartMode === 'earnings' && styles.metricCardActiveAmber,
                   ]}
                   activeOpacity={0.8}
-                  onPress={() => setChartMode('netGrid')}
+                  onPress={() => setChartMode('earnings')}
                 >
                   <View style={styles.metricIconBox}>
                     <Ionicons name="wallet-outline" size={20} color="#F59E0B" />
@@ -498,10 +671,10 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.metricCard,
-                    chartMode === 'carbon' && styles.metricCardActive,
+                    chartMode === 'carbon' && styles.metricCardActiveGreen,
                   ]}
                   activeOpacity={0.8}
-                  onPress={() => setChartMode('gridEnergy')}
+                  onPress={() => setChartMode('carbon')}
                 >
                   <View style={styles.metricIconBox}>
                     <Ionicons name="leaf-outline" size={20} color="#10B981" />
@@ -929,6 +1102,127 @@ const styles = StyleSheet.create({
     shadowColor: '#007AFE',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  // Earnings Chart Specific Styles
+  earningsChartContainer: {
+    height: 235,
+    position: 'relative',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  dottedGuideLine: {
+    flex: 1,
+    height: 1,
+    borderWidth: 0.5,
+    borderColor: 'rgba(36, 51, 86, 0.08)',
+    borderStyle: 'dashed',
+    marginRight: 12,
+  },
+  yAxisEarningsText: {
+    fontSize: 10,
+    color: '#8C8C8C',
+    width: 24,
+    textAlign: 'right',
+  },
+  earningsColumnsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingRight: 32,
+    height: 195,
+    alignItems: 'flex-end',
+    zIndex: 5,
+  },
+  earningsColumn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: '100%',
+    position: 'relative',
+  },
+  earningsHighlightWrapper: {
+    position: 'absolute',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  earningsTooltipPill: {
+    backgroundColor: '#FFC400',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  earningsTooltipText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  amberIndicatorLine: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#FFC400',
+    marginVertical: 2,
+  },
+  amberOuterRing: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: 'rgba(255, 196, 0, 0.25)',
+    borderWidth: 2,
+    borderColor: '#FFC400',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  amberInnerDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  earningsFillWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  earningsBarPill: {
+    width: 18,
+    borderTopLeftRadius: 9,
+    borderTopRightRadius: 9,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+  },
+  earningsXLabel: {
+    fontSize: 10,
+    color: '#666666',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  earningsXLabelActive: {
+    color: '#D97706',
+    fontWeight: '700',
+  },
+  metricCardActiveAmber: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFC400',
+    borderWidth: 1.5,
+    shadowColor: '#FFC400',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  metricCardActiveGreen: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#10B981',
+    borderWidth: 1.5,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 3,
   },
