@@ -304,7 +304,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 {/* Horizontal Guide Lines & Matrix Grid with Y-Axis */}
                 <View style={styles.gridLinesContainer}>
                   {[25, 20, 15, 10, 5].map((val, i) => (
-                    <View key={val} style={[styles.gridLineRow, { top: i * 54 + 6 }]}>
+                    <View key={val} style={[styles.gridLineRow, { top: i * 52 + 6 }]}>
                       {/* Dotted guideline */}
                       <View style={styles.dottedGuideLine} />
                       <Text style={styles.yAxisEarningsText}>{val}</Text>
@@ -316,7 +316,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <View style={styles.earningsColumnsWrapper}>
                   {currentEarnings.points.map((point, idx) => {
                     const isSelected = idx === selectedEarningsIndex;
-                    const pointHeight = (point.val / currentEarnings.yMax) * 220;
+                    const pointHeight = (point.val / currentEarnings.yMax) * 210;
 
                     return (
                       <TouchableOpacity
@@ -395,7 +395,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 {/* Horizontal Guide Lines & Y-Axis (1.75 down to 0.25 Tons) */}
                 <View style={styles.gridLinesContainer}>
                   {[1.75, 1.50, 1.25, 1.00, 0.75, 0.50, 0.25].map((val, i) => (
-                    <View key={val} style={[styles.gridLineRow, { top: i * 36 + 6 }]}>
+                    <View key={val} style={[styles.gridLineRow, { top: i * 35 + 6 }]}>
                       <View style={styles.dottedGuideLine} />
                       <Text style={styles.yAxisCarbonText}>{val.toFixed(2)}</Text>
                     </View>
@@ -408,7 +408,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <View style={styles.carbonBarsWrapper}>
                   {currentCarbon.bars.map((bar, idx) => {
                     const isSelected = idx === selectedCarbonIndex;
-                    const barHeight = (bar.val / 1.75) * 220;
+                    const barHeight = (bar.val / 1.75) * 210;
 
                     return (
                       <TouchableOpacity
@@ -487,7 +487,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 {/* Horizontal Guide Lines */}
                 <View style={styles.gridLinesContainer}>
                   {[8, 6, 4, 2, 0].map((val, i) => (
-                    <View key={val} style={[styles.gridLineRow, { top: i * 56 }]}>
+                    <View key={val} style={[styles.gridLineRow, { top: i * 53 }]}>
                       <View style={[styles.gridLine, val === 0 && styles.gridLineZero]} />
                       <Text style={styles.yAxisText}>{val}</Text>
                     </View>
@@ -499,7 +499,7 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <View style={styles.curveAreaWrapper}>
                   {currentGridEnergy.points.map((point, idx) => {
                     const isSelected = idx === selectedGridEnergyIndex;
-                    const pointHeight = (point.val / 8.0) * 220;
+                    const pointHeight = (point.val / 8.0) * 210;
 
                     return (
                       <TouchableOpacity
@@ -597,27 +597,27 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
 
                 {/* Grid lines and Y-Axis Labels */}
                 <View style={styles.gridLinesContainer}>
-                  <View style={[styles.gridLineRow, { top: 10 }]}>
+                  <View style={[styles.gridLineRow, { top: 6 }]}>
                     <View style={styles.gridLine} />
                     <Text style={styles.yAxisText}>Imported</Text>
                   </View>
-                  <View style={[styles.gridLineRow, { top: 45 }]}>
+                  <View style={[styles.gridLineRow, { top: 38 }]}>
                     <View style={styles.gridLine} />
                     <Text style={styles.yAxisText}>4 kW</Text>
                   </View>
-                  <View style={[styles.gridLineRow, { top: 85 }]}>
+                  <View style={[styles.gridLineRow, { top: 74 }]}>
                     <View style={styles.gridLine} />
                     <Text style={styles.yAxisText}>2 kW</Text>
                   </View>
-                  <View style={[styles.gridLineRow, { top: 125 }]}>
+                  <View style={[styles.gridLineRow, { top: 110 }]}>
                     <View style={[styles.gridLine, styles.gridLineZero]} />
                     <Text style={styles.yAxisText}>0 kW</Text>
                   </View>
-                  <View style={[styles.gridLineRow, { top: 165 }]}>
+                  <View style={[styles.gridLineRow, { top: 146 }]}>
                     <View style={styles.gridLine} />
                     <Text style={styles.yAxisText}>2 kW</Text>
                   </View>
-                  <View style={[styles.gridLineRow, { top: 205 }]}>
+                  <View style={[styles.gridLineRow, { top: 182 }]}>
                     <View style={styles.gridLine} />
                     <Text style={styles.yAxisText}>4 kW</Text>
                   </View>
@@ -627,8 +627,8 @@ export const EarningsScreen: React.FC<EarningsScreenProps> = ({
                 <View style={styles.chartVisualArea}>
                   {currentNetGrid.bars.map((item, idx) => {
                     const isSelected = idx === selectedNetGridIndex;
-                    const exportHeight = (item.exportVal / 4.0) * 95;
-                    const importHeight = (item.importVal / 4.0) * 78;
+                    const exportHeight = (item.exportVal / 4.0) * 85;
+                    const importHeight = (item.importVal / 4.0) * 70;
 
                     return (
                       <TouchableOpacity
@@ -908,19 +908,20 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 0.5,
     borderColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 20,
+    padding: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
-    minHeight: 395,
+    height: 385,
+    justifyContent: 'space-between',
   },
   chartHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   chartTitle: {
     fontSize: 16,
@@ -937,10 +938,10 @@ const styles = StyleSheet.create({
   },
   // Grid Energy Specific Styles
   gridEnergyChartContainer: {
-    height: 300,
+    height: 295,
     position: 'relative',
     justifyContent: 'flex-end',
-    marginTop: 10,
+    marginTop: 6,
   },
   unitLabel: {
     position: 'absolute',
@@ -954,7 +955,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingRight: 40,
-    height: 255,
+    height: 250,
     alignItems: 'flex-end',
     zIndex: 5,
   },
@@ -1033,10 +1034,10 @@ const styles = StyleSheet.create({
   },
   // Net Grid Specific Styles
   graphContainer: {
-    height: 260,
+    height: 235,
     position: 'relative',
     justifyContent: 'center',
-    marginVertical: 4,
+    marginVertical: 2,
   },
   tooltipContainer: {
     position: 'absolute',
@@ -1062,7 +1063,7 @@ const styles = StyleSheet.create({
   },
   tooltipLine: {
     width: 1,
-    height: 195,
+    height: 175,
     backgroundColor: 'rgba(0, 122, 254, 0.35)',
     marginTop: 4,
   },
@@ -1110,12 +1111,12 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   exportBarWrapper: {
-    height: 100,
+    height: 90,
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
   importBarWrapper: {
-    height: 85,
+    height: 74,
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
@@ -1241,10 +1242,10 @@ const styles = StyleSheet.create({
   },
   // Earnings Chart Specific Styles
   earningsChartContainer: {
-    height: 300,
+    height: 295,
     position: 'relative',
     justifyContent: 'flex-end',
-    marginTop: 10,
+    marginTop: 6,
   },
   dottedGuideLine: {
     flex: 1,
@@ -1264,7 +1265,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingRight: 32,
-    height: 255,
+    height: 250,
     alignItems: 'flex-end',
     zIndex: 5,
   },
@@ -1362,7 +1363,7 @@ const styles = StyleSheet.create({
   },
   // Carbon Emission Specific Styles
   carbonChartContainer: {
-    height: 300,
+    height: 295,
     position: 'relative',
     justifyContent: 'flex-end',
     marginTop: 6,
@@ -1385,7 +1386,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingRight: 34,
-    height: 255,
+    height: 250,
     alignItems: 'flex-end',
     zIndex: 5,
   },
