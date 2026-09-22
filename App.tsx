@@ -17,11 +17,22 @@ import { OnboardingWelcomeScreen } from './src/screens/OnboardingWelcomeScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { ConfirmLocationScreen } from './src/screens/ConfirmLocationScreen';
 import { IdentifyDeviceScreen } from './src/screens/IdentifyDeviceScreen';
+import { WifiSetupScreen } from './src/screens/WifiSetupScreen';
+import { ConnectingDeviceScreen } from './src/screens/ConnectingDeviceScreen';
+import { SetupCompleteScreen } from './src/screens/SetupCompleteScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
 
-type AuthStep = 'onboarding' | 'login' | 'location' | 'identifyDevice' | 'authenticated';
+type AuthStep =
+  | 'onboarding'
+  | 'login'
+  | 'location'
+  | 'identifyDevice'
+  | 'wifiSetup'
+  | 'connectingDevice'
+  | 'setupComplete'
+  | 'authenticated';
 type ServiceSubScreen = 'menu' | 'general' | 'inverter' | 'firmware' | 'device';
 type HomeSubScreen =
   | 'main'
@@ -34,6 +45,8 @@ type HomeSubScreen =
 export default function App() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
   const [authStep, setAuthStep] = useState<AuthStep>('onboarding');
+  const [selectedWifi, setSelectedWifi] = useState<string>('Home_WiFi');
+  const [connectedDeviceId, setConnectedDeviceId] = useState<string>('AMEC-INV-24001852');
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [serviceSubScreen, setServiceSubScreen] = useState<ServiceSubScreen>('menu');
   const [homeSubScreen, setHomeSubScreen] = useState<HomeSubScreen>('main');
@@ -69,12 +82,50 @@ export default function App() {
       );
     }
 
-    // 4. Show Identify Device Screen (Figma Node 2273:9742 & 2287:8736)
+    // 4. Show Identify Device Screen (Figma Node 2273:9742, 2287:8736, 2285:3503)
     if (authStep === 'identifyDevice') {
       return (
         <IdentifyDeviceScreen
-          onConfirm={() => setAuthStep('authenticated')}
+          onConfirm={() => setAuthStep('wifiSetup')}
           onBack={() => setAuthStep('location')}
+        />
+      );
+    }
+
+    // 5. Show Wi-Fi Selection Screen (Figma Node 2273:9792)
+    if (authStep === 'wifiSetup') {
+      return (
+        <WifiSetupScreen
+          onSelectNetwork={(ssid) => {
+            setSelectedWifi(ssid);
+            setAuthStep('connectingDevice');
+          }}
+          onBack={() => setAuthStep('identifyDevice')}
+          onSkip={() => setAuthStep('setupComplete')}
+        />
+      );
+    }
+
+    // 6. Show Connecting Device Screen (Figma Node 2273:9925 & 2296:615)
+    if (authStep === 'connectingDevice') {
+      return (
+        <ConnectingDeviceScreen
+          ssid={selectedWifi}
+          defaultDeviceId={connectedDeviceId}
+          onConfirm={(devId) => {
+            setConnectedDeviceId(devId);
+            setAuthStep('setupComplete');
+          }}
+          onBack={() => setAuthStep('wifiSetup')}
+        />
+      );
+    }
+
+    // 7. Show Setup Complete Screen (Figma Node 2273:13004)
+    if (authStep === 'setupComplete') {
+      return (
+        <SetupCompleteScreen
+          onFinish={() => setAuthStep('authenticated')}
         />
       );
     }
