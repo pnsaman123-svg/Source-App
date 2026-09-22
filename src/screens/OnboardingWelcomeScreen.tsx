@@ -62,8 +62,8 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
         {/* Central Phone Mockup Hero Illustration */}
         <View style={styles.heroContainer}>
           <Image
-            source={require('../../assets/images/onboarding-hero.png')}
-            style={[styles.heroImage, { height: heroHeight }]}
+            source={require('../../assets/images/onboarding-device-mockup.png')}
+            style={styles.heroImage}
             resizeMode="contain"
           />
         </View>
@@ -140,10 +140,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+    width: '100%',
+    paddingVertical: 6,
   },
   heroImage: {
-    width: SCREEN_WIDTH * 0.88,
+    width: SCREEN_WIDTH,
+    height: '100%',
   },
   bottomSection: {
     paddingBottom: 24,
