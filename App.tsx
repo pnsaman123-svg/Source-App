@@ -16,11 +16,12 @@ import { StartupSplashScreen } from './src/screens/StartupSplashScreen';
 import { OnboardingWelcomeScreen } from './src/screens/OnboardingWelcomeScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { ConfirmLocationScreen } from './src/screens/ConfirmLocationScreen';
+import { IdentifyDeviceScreen } from './src/screens/IdentifyDeviceScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
 
-type AuthStep = 'onboarding' | 'login' | 'location' | 'authenticated';
+type AuthStep = 'onboarding' | 'login' | 'location' | 'identifyDevice' | 'authenticated';
 type ServiceSubScreen = 'menu' | 'general' | 'inverter' | 'firmware' | 'device';
 type HomeSubScreen =
   | 'main'
@@ -62,8 +63,18 @@ export default function App() {
     if (authStep === 'location') {
       return (
         <ConfirmLocationScreen
-          onConfirm={() => setAuthStep('authenticated')}
+          onConfirm={() => setAuthStep('identifyDevice')}
           onBack={() => setAuthStep('login')}
+        />
+      );
+    }
+
+    // 4. Show Identify Device Screen (Figma Node 2273:9742 & 2287:8736)
+    if (authStep === 'identifyDevice') {
+      return (
+        <IdentifyDeviceScreen
+          onConfirm={() => setAuthStep('authenticated')}
+          onBack={() => setAuthStep('location')}
         />
       );
     }
