@@ -11,6 +11,7 @@
     },
     "android": {
       "package": "com.source.smartenergy",
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#EBEEF2"
       }
