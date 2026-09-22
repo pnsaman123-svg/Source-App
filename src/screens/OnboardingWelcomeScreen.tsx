@@ -49,69 +49,137 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
   const { isSmallScreen, horizontalPadding } = useResponsive();
   const [currentSlideIndex, setCurrentSlideIndex] = React.useState<number>(0);
 
-  // Animation references for smooth transitions
+  // 3D Parallax & Transition Animators
   const contentFadeAnim = useRef(new Animated.Value(1)).current;
   const contentTranslateX = useRef(new Animated.Value(0)).current;
+  const heroTiltY = useRef(new Animated.Value(0)).current;
   const heroScaleAnim = useRef(new Animated.Value(1)).current;
+  const heroFloatY = useRef(new Animated.Value(0)).current;
+  const textTranslateY = useRef(new Animated.Value(0)).current;
+  const textFadeAnim = useRef(new Animated.Value(1)).current;
   const btnScaleAnim = useRef(new Animated.Value(1)).current;
 
   const currentSlide = ONBOARDING_SLIDES[currentSlideIndex];
   const isLastSlide = currentSlideIndex === ONBOARDING_SLIDES.length - 1;
 
+  // Continuous subtle 3D floating animation on mockup
+  useEffect(() => {
+    const floatLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(heroFloatY, {
+          toValue: -8,
+          duration: 2200,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(heroFloatY, {
+          toValue: 2,
+          duration: 2400,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    floatLoop.start();
+    return () => floatLoop.stop();
+  }, []);
+
   const animateSlideChange = (newIndex: number, direction: 'next' | 'prev') => {
-    // Exit current content
+    // 1. Exit transition with 3D tilt & depth push
     Animated.parallel([
       Animated.timing(contentFadeAnim, {
         toValue: 0,
-        duration: 180,
+        duration: 200,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
       Animated.timing(contentTranslateX, {
-        toValue: direction === 'next' ? -35 : 35,
-        duration: 180,
+        toValue: direction === 'next' ? -50 : 50,
+        duration: 200,
         easing: Easing.out(Easing.ease),
         useNativeDriver: true,
       }),
+      Animated.timing(heroTiltY, {
+        toValue: direction === 'next' ? -1 : 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
       Animated.timing(heroScaleAnim, {
-        toValue: 0.94,
-        duration: 180,
+        toValue: 0.9,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(textFadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(textTranslateY, {
+        toValue: 12,
+        duration: 150,
         useNativeDriver: true,
       }),
     ]).start(() => {
       setCurrentSlideIndex(newIndex);
-      contentTranslateX.setValue(direction === 'next' ? 35 : -35);
 
-      // Enter new content
+      // Reset start positions for entrance
+      contentTranslateX.setValue(direction === 'next' ? 60 : -60);
+      heroTiltY.setValue(direction === 'next' ? 1 : -1);
+      textTranslateY.setValue(18);
+
+      // 2. 3D Spring Entrance Reveal
       Animated.parallel([
         Animated.timing(contentFadeAnim, {
           toValue: 1,
-          duration: 320,
+          duration: 380,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.spring(contentTranslateX, {
           toValue: 0,
+          friction: 8,
+          tension: 65,
+          useNativeDriver: true,
+        }),
+        Animated.spring(heroTiltY, {
+          toValue: 0,
           friction: 7,
-          tension: 70,
+          tension: 60,
           useNativeDriver: true,
         }),
         Animated.spring(heroScaleAnim, {
           toValue: 1,
           friction: 7,
-          tension: 70,
+          tension: 65,
           useNativeDriver: true,
         }),
+        Animated.sequence([
+          Animated.delay(60),
+          Animated.parallel([
+            Animated.timing(textFadeAnim, {
+              toValue: 1,
+              duration: 300,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }),
+            Animated.spring(textTranslateY, {
+              toValue: 0,
+              friction: 8,
+              tension: 70,
+              useNativeDriver: true,
+            }),
+          ]),
+        ]),
       ]).start();
     });
   };
 
   const handleNext = () => {
-    // Button press scale feedback
+    // Micro tactile scale bounce
     Animated.sequence([
       Animated.timing(btnScaleAnim, {
-        toValue: 0.96,
-        duration: 80,
+        toValue: 0.95,
+        duration: 70,
         useNativeDriver: true,
       }),
       Animated.timing(btnScaleAnim, {
@@ -133,6 +201,11 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
       animateSlideChange(currentSlideIndex - 1, 'prev');
     }
   };
+
+  const heroTiltYStr = heroTiltY.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: ['-12deg', '0deg', '12deg'],
+  });
 
   return (
     <View style={[styles.root, currentSlideIndex > 0 && styles.rootFlat]}>
@@ -185,14 +258,17 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
           </TouchableOpacity>
         </View>
 
-        {/* Central Mockup / Illustration Area with Slide & Spring Animation */}
+        {/* Central Mockup Area with 3D Depth Perspective & Parallax */}
         <Animated.View
           style={[
             styles.heroContainer,
             {
               opacity: contentFadeAnim,
               transform: [
+                { perspective: 1200 },
                 { translateX: contentTranslateX },
+                { translateY: heroFloatY },
+                { rotateY: heroTiltYStr },
                 { scale: heroScaleAnim },
               ],
             },
@@ -216,14 +292,14 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
           />
         </Animated.View>
 
-        {/* Bottom Content & CTA Section */}
+        {/* Bottom Content & CTA Section with Staggered Slide */}
         <View style={[styles.bottomSection, { paddingHorizontal: horizontalPadding }]}>
           <Animated.View
             style={[
               styles.textSection,
               {
-                opacity: contentFadeAnim,
-                transform: [{ translateX: contentTranslateX }],
+                opacity: textFadeAnim,
+                transform: [{ translateY: textTranslateY }],
               },
             ]}
           >
@@ -294,7 +370,7 @@ const styles = StyleSheet.create({
   },
   activeProgressBar: {
     backgroundColor: '#1A1A1A',
-    width: 34,
+    width: 36,
   },
   completedProgressBar: {
     backgroundColor: '#6B6B70',
