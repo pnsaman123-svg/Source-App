@@ -26,21 +26,17 @@ export const IdentifyDeviceScreen: React.FC<IdentifyDeviceScreenProps> = ({
   onBack,
 }) => {
   const { horizontalPadding, isSmallScreen } = useResponsive();
+  const [step, setStep] = useState<'identify' | 'identified'>('identify');
   const [showManualModal, setShowManualModal] = useState(false);
   const [deviceId, setDeviceId] = useState('');
+  const [deviceName, setDeviceName] = useState('Hybrid Inverter');
+  const [deviceModel, setDeviceModel] = useState('GEN 3 Smart Core');
 
   const handleScanQR = () => {
-    // Simulated quick scan
-    Alert.alert(
-      'QR Code Detected',
-      'Successfully connected to SOURCE Inverter (LG AZ2400X).',
-      [
-        {
-          text: 'Continue',
-          onPress: onConfirm,
-        },
-      ]
-    );
+    // Simulate instant identification
+    setDeviceName('Hybrid Inverter');
+    setDeviceModel('GEN 3 Smart Core');
+    setStep('identified');
   };
 
   const handleManualSubmit = () => {
@@ -49,16 +45,17 @@ export const IdentifyDeviceScreen: React.FC<IdentifyDeviceScreenProps> = ({
       return;
     }
     setShowManualModal(false);
-    Alert.alert(
-      'Device Paired',
-      `Successfully connected to Inverter (${deviceId.trim()}).`,
-      [
-        {
-          text: 'Continue',
-          onPress: onConfirm,
-        },
-      ]
-    );
+    setDeviceName('Hybrid Inverter');
+    setDeviceModel(deviceId.trim().toUpperCase());
+    setStep('identified');
+  };
+
+  const handleHeaderBack = () => {
+    if (step === 'identified') {
+      setStep('identify');
+    } else if (onBack) {
+      onBack();
+    }
   };
 
   return (
@@ -73,18 +70,14 @@ export const IdentifyDeviceScreen: React.FC<IdentifyDeviceScreenProps> = ({
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
         {/* Top Header with Back Navigation */}
         <View style={[styles.header, { paddingHorizontal: horizontalPadding }]}>
-          {onBack ? (
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={onBack}
-              activeOpacity={0.7}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            >
-              <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.headerSpacer} />
-          )}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={handleHeaderBack}
+            activeOpacity={0.7}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
 
           {/* Quick Skip to Home button */}
           <TouchableOpacity
@@ -99,47 +92,95 @@ export const IdentifyDeviceScreen: React.FC<IdentifyDeviceScreenProps> = ({
         {/* Spacer to push card to bottom */}
         <View style={styles.flexSpacer} />
 
-        {/* Bottom Sheet Card Matching Figma Node 2287:8736 */}
+        {/* Bottom Sheet Card Matching Figma Nodes */}
         <View style={styles.cardContainer}>
           {/* Drag Handle */}
           <View style={styles.dragHandle} />
 
-          {/* Header Typography */}
-          <View style={styles.textGroup}>
-            <Text style={[styles.title, isSmallScreen && { fontSize: 22, lineHeight: 28 }]}>
-              Identify your device
-            </Text>
-            <Text style={[styles.subtitle, isSmallScreen && { fontSize: 13.5, lineHeight: 19 }]}>
-              Scan the QR code on your inverter or enter the device ID manually.
-            </Text>
-          </View>
-
-          {/* Action Options Row */}
-          <View style={styles.optionsRow}>
-            {/* Option 1: Scan QR Code */}
-            <TouchableOpacity
-              style={styles.optionCard}
-              onPress={handleScanQR}
-              activeOpacity={0.8}
-            >
-              <View style={styles.iconContainer}>
-                <Ionicons name="camera" size={24} color="#1A1A1A" />
+          {step === 'identify' ? (
+            /* Step 1: Identify your device (Figma Node 2287:8736) */
+            <>
+              <View style={styles.textGroup}>
+                <Text style={[styles.title, isSmallScreen && { fontSize: 22, lineHeight: 28 }]}>
+                  Identify your device
+                </Text>
+                <Text style={[styles.subtitle, isSmallScreen && { fontSize: 13.5, lineHeight: 19 }]}>
+                  Scan the QR code on your inverter or enter the device ID manually.
+                </Text>
               </View>
-              <Text style={styles.optionLabel}>Scan QR Code</Text>
-            </TouchableOpacity>
 
-            {/* Option 2: Enter Device ID */}
-            <TouchableOpacity
-              style={styles.optionCard}
-              onPress={() => setShowManualModal(true)}
-              activeOpacity={0.8}
-            >
-              <View style={styles.iconContainer}>
-                <Ionicons name="pencil" size={22} color="#1A1A1A" />
+              {/* Action Options Row */}
+              <View style={styles.optionsRow}>
+                {/* Option 1: Scan QR Code */}
+                <TouchableOpacity
+                  style={styles.optionCard}
+                  onPress={handleScanQR}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.iconContainer}>
+                    <Ionicons name="camera" size={24} color="#1A1A1A" />
+                  </View>
+                  <Text style={styles.optionLabel}>Scan QR Code</Text>
+                </TouchableOpacity>
+
+                {/* Option 2: Enter Device ID */}
+                <TouchableOpacity
+                  style={styles.optionCard}
+                  onPress={() => setShowManualModal(true)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.iconContainer}>
+                    <Ionicons name="pencil" size={22} color="#1A1A1A" />
+                  </View>
+                  <Text style={styles.optionLabel}>Enter Device ID</Text>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.optionLabel}>Enter Device ID</Text>
-            </TouchableOpacity>
-          </View>
+            </>
+          ) : (
+            /* Step 2: Device identified (Figma Node 2285:3503) */
+            <>
+              <View style={styles.textGroup}>
+                <Text style={[styles.title, isSmallScreen && { fontSize: 22, lineHeight: 28 }]}>
+                  Device identified
+                </Text>
+                <Text style={[styles.subtitle, isSmallScreen && { fontSize: 13.5, lineHeight: 19 }]}>
+                  Set up your inverter in just a few steps.
+                </Text>
+              </View>
+
+              {/* Identified Inverter Card with Emerald Accent */}
+              <View style={styles.identifiedCard}>
+                <View style={styles.identifiedLeft}>
+                  {/* Emerald Green Check Badge */}
+                  <View style={styles.checkBadge}>
+                    <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                  </View>
+                  <View style={styles.deviceDetails}>
+                    <Text style={styles.deviceName}>{deviceName}</Text>
+                    <Text style={styles.deviceModel}>{deviceModel}</Text>
+                  </View>
+                </View>
+
+                {/* Inverter Thumbnail */}
+                <View style={styles.thumbnailContainer}>
+                  <Image
+                    source={require('../../assets/images/inverter.png')}
+                    style={styles.inverterThumbnail}
+                    resizeMode="contain"
+                  />
+                </View>
+              </View>
+
+              {/* Get Started CTA */}
+              <TouchableOpacity
+                style={styles.getStartedButton}
+                onPress={onConfirm}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.getStartedButtonText}>Get Started</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </SafeAreaView>
 
@@ -302,6 +343,77 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#747474',
     textAlign: 'center',
+  },
+  identifiedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F5F5F7',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#10B981',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+  identifiedLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  checkBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  deviceDetails: {
+    flex: 1,
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 2,
+  },
+  deviceModel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#747474',
+  },
+  thumbnailContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ECECEF',
+  },
+  inverterThumbnail: {
+    width: 36,
+    height: 36,
+  },
+  getStartedButton: {
+    height: 56,
+    backgroundColor: '#1A1A1A',
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  getStartedButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   modalOverlay: {
     flex: 1,
