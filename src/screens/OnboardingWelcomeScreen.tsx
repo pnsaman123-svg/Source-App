@@ -19,14 +19,38 @@ interface OnboardingWelcomeScreenProps {
   onSkip: () => void;
 }
 
+const ONBOARDING_SLIDES = [
+  {
+    id: 'slide-1',
+    image: require('../../assets/images/onboarding-device-mockup.png'),
+    title: 'Connect\nYour Energy',
+    subtitle: 'Connect your SOURCE Inverter and bring your energy system into one simple app.',
+  },
+  {
+    id: 'slide-2',
+    image: require('../../assets/images/onboarding-analytics-mockup.png'),
+    title: 'See Your\nEnergy Clearly',
+    subtitle: 'Monitor solar generation, battery status, home usage and energy flow in real time.',
+  },
+];
+
 export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = ({
   onNext,
   onSkip,
 }) => {
   const { isSmallScreen, horizontalPadding } = useResponsive();
+  const [currentSlideIndex, setCurrentSlideIndex] = React.useState<number>(0);
 
-  // Dynamic sizing based on screen dimensions
-  const heroHeight = SCREEN_HEIGHT * 0.48;
+  const currentSlide = ONBOARDING_SLIDES[currentSlideIndex];
+  const isLastSlide = currentSlideIndex === ONBOARDING_SLIDES.length - 1;
+
+  const handleNext = () => {
+    if (!isLastSlide) {
+      setCurrentSlideIndex((prev) => prev + 1);
+    } else {
+      onNext();
+    }
+  };
 
   return (
     <View style={styles.root}>
@@ -45,9 +69,24 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
 
           {/* 3 Progress Bars */}
           <View style={styles.progressContainer}>
-            <View style={[styles.progressBar, styles.activeProgressBar]} />
-            <View style={styles.progressBar} />
-            <View style={styles.progressBar} />
+            <View
+              style={[
+                styles.progressBar,
+                currentSlideIndex === 0 && styles.activeProgressBar,
+              ]}
+            />
+            <View
+              style={[
+                styles.progressBar,
+                currentSlideIndex === 1 && styles.activeProgressBar,
+              ]}
+            />
+            <View
+              style={[
+                styles.progressBar,
+                currentSlideIndex === 2 && styles.activeProgressBar,
+              ]}
+            />
           </View>
 
           {/* Skip Button */}
@@ -60,10 +99,11 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
           </TouchableOpacity>
         </View>
 
-        {/* Central Phone Mockup Hero Illustration */}
+        {/* Central Mockup / Illustration Area */}
         <View style={styles.heroContainer}>
           <Image
-            source={require('../../assets/images/onboarding-device-mockup.png')}
+            key={currentSlide.id}
+            source={currentSlide.image}
             style={styles.heroImage}
             resizeMode="contain"
           />
@@ -76,21 +116,21 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
           />
         </View>
 
-        {/* Bottom Content & CTA Section Matching Figma Node 2919:2366 */}
+        {/* Bottom Content & CTA Section */}
         <View style={[styles.bottomSection, { paddingHorizontal: horizontalPadding }]}>
           <View style={styles.textSection}>
             <Text style={[styles.title, isSmallScreen && { fontSize: 28, lineHeight: 34 }]}>
-              Connect{'\n'}Your Energy
+              {currentSlide.title}
             </Text>
             <Text style={[styles.subtitle, isSmallScreen && { fontSize: 14.5, lineHeight: 21 }]}>
-              Connect your SOURCE Inverter and bring your energy system into one simple app.
+              {currentSlide.subtitle}
             </Text>
           </View>
 
           {/* Next Button */}
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={onNext}
+            onPress={handleNext}
             activeOpacity={0.85}
           >
             <Text style={styles.nextButtonText}>Next</Text>
