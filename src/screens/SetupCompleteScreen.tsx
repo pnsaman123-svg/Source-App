@@ -171,13 +171,6 @@ export const SetupCompleteScreen: React.FC<SetupCompleteScreenProps> = ({
             style={styles.inverterImage}
             resizeMode="contain"
           />
-
-          {/* Connected Badge Overlay */}
-          <View style={styles.connectedBadge}>
-            <View style={styles.statusDot} />
-            <Text style={styles.connectedBadgeText}>Connected</Text>
-            <Ionicons name="checkmark-circle" size={16} color="#10B981" />
-          </View>
         </Animated.View>
 
         {/* Text Group */}
@@ -265,35 +258,6 @@ const styles = StyleSheet.create({
   inverterImage: {
     width: 170,
     height: 230,
-  },
-  connectedBadge: {
-    position: 'absolute',
-    bottom: -12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
-  },
-  connectedBadgeText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1A1A1A',
   },
   textGroup: {
     alignItems: 'center',
