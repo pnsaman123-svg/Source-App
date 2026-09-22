@@ -110,7 +110,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   <TextInput
                     style={styles.textInput}
                     placeholder="Email id"
-                    placeholderTextColor="#A0A0A5"
+                    placeholderTextColor="#9E9EA0"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -124,7 +124,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   <TextInput
                     style={[styles.textInput, styles.passwordInput]}
                     placeholder="Password"
-                    placeholderTextColor="#A0A0A5"
+                    placeholderTextColor="#9E9EA0"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
@@ -250,21 +250,21 @@ const styles = StyleSheet.create({
   },
   inputCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    height: 64,
-    paddingHorizontal: 22,
+    borderRadius: 12,
+    height: 56,
+    paddingHorizontal: 16,
     justifyContent: 'center',
-    marginBottom: 18,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
   },
   textInput: {
-    fontSize: 16.5,
+    fontSize: 15,
     color: '#1A1A1A',
-    fontWeight: '500',
+    fontWeight: '400',
     height: '100%',
   },
   passwordCard: {
