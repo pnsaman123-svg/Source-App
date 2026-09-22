@@ -95,10 +95,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             >
               {/* Header Title & Subtitle Matching Figma Node 1986:339 */}
               <View style={styles.headerSection}>
-                <Text style={[styles.title, isSmallScreen && { fontSize: 30, lineHeight: 38 }]}>
+                <Text style={[styles.title, isSmallScreen && { fontSize: 35, lineHeight: 42 }]}>
                   Hey,{'\n'}Welcome Back
                 </Text>
-                <Text style={[styles.subtitle, isSmallScreen && { fontSize: 14.5, lineHeight: 21 }]}>
+                <Text style={[styles.subtitle, isSmallScreen && { fontSize: 15.5, lineHeight: 23 }]}>
                   It’s good to see you again! Sign in to continue your journey with us!
                 </Text>
               </View>
@@ -231,19 +231,19 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   title: {
-    fontSize: 36,
-    lineHeight: 44,
+    fontSize: 42,
+    lineHeight: 50,
     fontWeight: '800',
     color: '#1A1A1A',
-    letterSpacing: -0.6,
-    marginBottom: 14,
+    letterSpacing: -0.8,
+    marginBottom: 16,
   },
   subtitle: {
-    fontSize: 15.5,
-    lineHeight: 23,
+    fontSize: 17.5,
+    lineHeight: 26,
     color: '#6B6B70',
     fontWeight: '400',
-    maxWidth: '94%',
+    maxWidth: '96%',
   },
   formSection: {
     width: '100%',
