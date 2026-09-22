@@ -32,6 +32,12 @@ const ONBOARDING_SLIDES = [
     title: 'See Your\nEnergy Clearly',
     subtitle: 'Monitor solar generation, battery status, home usage and energy flow in real time.',
   },
+  {
+    id: 'slide-3',
+    image: require('../../assets/images/onboarding-control-mockup.png'),
+    title: 'Power Smarter.\nClean Smarter.',
+    subtitle: 'Control your energy. Keep your panels performing at their best.',
+  },
 ];
 
 export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = ({
