@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useResponsive } from '../utils/responsive';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -65,6 +66,13 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
             source={require('../../assets/images/onboarding-device-mockup.png')}
             style={styles.heroImage}
             resizeMode="contain"
+          />
+          {/* Seamless Bottom Gradient Fade into Screen Background */}
+          <LinearGradient
+            colors={['rgba(232, 232, 237, 0)', 'rgba(232, 232, 237, 0.4)', 'rgba(232, 232, 237, 0.85)', '#E8E8ED']}
+            locations={[0, 0.4, 0.75, 1]}
+            style={styles.heroBottomGradient}
+            pointerEvents="none"
           />
         </View>
 
@@ -146,6 +154,13 @@ const styles = StyleSheet.create({
   heroImage: {
     width: SCREEN_WIDTH,
     height: '100%',
+  },
+  heroBottomGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 100,
   },
   bottomSection: {
     paddingBottom: 24,
