@@ -15,11 +15,12 @@ import { DeviceManagementScreen } from './src/screens/DeviceManagementScreen';
 import { StartupSplashScreen } from './src/screens/StartupSplashScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { ConfirmLocationScreen } from './src/screens/ConfirmLocationScreen';
+import { IdentifyDeviceScreen } from './src/screens/IdentifyDeviceScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
 
-type AuthStep = 'login' | 'location' | 'authenticated';
+type AuthStep = 'login' | 'location' | 'device' | 'authenticated';
 type ServiceSubScreen = 'menu' | 'general' | 'inverter' | 'firmware' | 'device';
 type HomeSubScreen =
   | 'main'
@@ -51,8 +52,18 @@ export default function App() {
     if (authStep === 'location') {
       return (
         <ConfirmLocationScreen
-          onConfirm={() => setAuthStep('authenticated')}
+          onConfirm={() => setAuthStep('device')}
           onBack={() => setAuthStep('login')}
+        />
+      );
+    }
+
+    // 3. Show Identify Device Screen after location confirmation
+    if (authStep === 'device') {
+      return (
+        <IdentifyDeviceScreen
+          onComplete={() => setAuthStep('authenticated')}
+          onBack={() => setAuthStep('location')}
         />
       );
     }
