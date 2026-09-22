@@ -6,6 +6,7 @@ import {
   Image,
   Easing,
   StatusBar,
+  View,
 } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -15,31 +16,64 @@ interface StartupSplashScreenProps {
 }
 
 export const StartupSplashScreen: React.FC<StartupSplashScreenProps> = ({ onFinish }) => {
-  const screenFadeAnim = useRef(new Animated.Value(1)).current;
-  const screenScaleAnim = useRef(new Animated.Value(1)).current;
+  const screenFadeAnim = useRef(new Animated.Value(0)).current;
+  const imageScaleAnim = useRef(new Animated.Value(0.95)).current;
+  const imageFadeAnim = useRef(new Animated.Value(0)).current;
+  const overlayGlowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Show static startup screen for 1.8 seconds, then smoothly transition into app
-    const timer = setTimeout(() => {
+    // 1. Entrance animation: Smooth zoom-in & fade-in of 3D architectural mockup
+    Animated.parallel([
+      Animated.timing(screenFadeAnim, {
+        toValue: 1,
+        duration: 400,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(imageFadeAnim, {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(imageScaleAnim, {
+        toValue: 1.0,
+        duration: 1200,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.timing(overlayGlowAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+
+    // 2. Hold, slow ambient drift, then exit transition
+    const exitTimer = setTimeout(() => {
       Animated.parallel([
         Animated.timing(screenFadeAnim, {
           toValue: 0,
-          duration: 600,
+          duration: 550,
           easing: Easing.inOut(Easing.cubic),
           useNativeDriver: true,
         }),
-        Animated.timing(screenScaleAnim, {
-          toValue: 1.03,
-          duration: 600,
-          easing: Easing.out(Easing.quad),
+        Animated.timing(imageScaleAnim, {
+          toValue: 1.06,
+          duration: 550,
+          easing: Easing.in(Easing.cubic),
           useNativeDriver: true,
         }),
       ]).start(() => {
         onFinish();
       });
-    }, 1800);
+    }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(exitTimer);
   }, [onFinish]);
 
   return (
@@ -48,17 +82,35 @@ export const StartupSplashScreen: React.FC<StartupSplashScreenProps> = ({ onFini
         styles.container,
         {
           opacity: screenFadeAnim,
-          transform: [{ scale: screenScaleAnim }],
         },
       ]}
     >
       <StatusBar barStyle="dark-content" backgroundColor="#F5F5F7" translucent />
 
-      {/* Static 3D Faceted Architectural Enclosure (Figma Node 2861:3249) */}
-      <Image
+      {/* 3D Faceted Architectural Enclosure with smooth zoom & fade (Figma Node 2861:3249) */}
+      <Animated.Image
         source={require('../../assets/images/startup-bg.png')}
-        style={styles.backgroundImage}
+        style={[
+          styles.backgroundImage,
+          {
+            opacity: imageFadeAnim,
+            transform: [{ scale: imageScaleAnim }],
+          },
+        ]}
         resizeMode="cover"
+      />
+
+      {/* Subtle Ambient Light Shimmer Overlay */}
+      <Animated.View
+        style={[
+          styles.ambientGlow,
+          {
+            opacity: overlayGlowAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 0.25],
+            }),
+          },
+        ]}
       />
     </Animated.View>
   );
@@ -76,5 +128,10 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
     position: 'absolute',
+  },
+  ambientGlow: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: '#FFFFFF',
+    pointerEvents: 'none',
   },
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,15 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
-  ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useResponsive } from '../utils/responsive';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface OnboardingWelcomeScreenProps {
   onNext: () => void;
@@ -48,14 +49,88 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
   const { isSmallScreen, horizontalPadding } = useResponsive();
   const [currentSlideIndex, setCurrentSlideIndex] = React.useState<number>(0);
 
+  // Animation references for smooth transitions
+  const contentFadeAnim = useRef(new Animated.Value(1)).current;
+  const contentTranslateX = useRef(new Animated.Value(0)).current;
+  const heroScaleAnim = useRef(new Animated.Value(1)).current;
+  const btnScaleAnim = useRef(new Animated.Value(1)).current;
+
   const currentSlide = ONBOARDING_SLIDES[currentSlideIndex];
   const isLastSlide = currentSlideIndex === ONBOARDING_SLIDES.length - 1;
 
+  const animateSlideChange = (newIndex: number, direction: 'next' | 'prev') => {
+    // Exit current content
+    Animated.parallel([
+      Animated.timing(contentFadeAnim, {
+        toValue: 0,
+        duration: 180,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentTranslateX, {
+        toValue: direction === 'next' ? -35 : 35,
+        duration: 180,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(heroScaleAnim, {
+        toValue: 0.94,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setCurrentSlideIndex(newIndex);
+      contentTranslateX.setValue(direction === 'next' ? 35 : -35);
+
+      // Enter new content
+      Animated.parallel([
+        Animated.timing(contentFadeAnim, {
+          toValue: 1,
+          duration: 320,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.spring(contentTranslateX, {
+          toValue: 0,
+          friction: 7,
+          tension: 70,
+          useNativeDriver: true,
+        }),
+        Animated.spring(heroScaleAnim, {
+          toValue: 1,
+          friction: 7,
+          tension: 70,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
+
   const handleNext = () => {
+    // Button press scale feedback
+    Animated.sequence([
+      Animated.timing(btnScaleAnim, {
+        toValue: 0.96,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(btnScaleAnim, {
+        toValue: 1.0,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     if (!isLastSlide) {
-      setCurrentSlideIndex((prev) => prev + 1);
+      animateSlideChange(currentSlideIndex + 1, 'next');
     } else {
       onNext();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentSlideIndex > 0) {
+      animateSlideChange(currentSlideIndex - 1, 'prev');
     }
   };
 
@@ -71,13 +146,12 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
       )}
 
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
-        {/* Top Header: Back Button (from 2nd splash) + 3-Segment Indicator + Skip Button */}
+        {/* Top Header: Back Button + 3-Segment Indicator + Skip Button */}
         <View style={[styles.header, { paddingHorizontal: horizontalPadding }]}>
-          {/* Back Button from 2nd Splash, or Symmetrical Spacer on 1st Splash */}
           {currentSlideIndex > 0 ? (
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => setCurrentSlideIndex((prev) => Math.max(0, prev - 1))}
+              onPress={handleBack}
               activeOpacity={0.7}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
@@ -87,26 +161,18 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
             <View style={styles.headerSpacer} />
           )}
 
-          {/* 3 Progress Bars */}
+          {/* 3 Progress Bars with Smooth Active Transitions */}
           <View style={styles.progressContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                currentSlideIndex === 0 && styles.activeProgressBar,
-              ]}
-            />
-            <View
-              style={[
-                styles.progressBar,
-                currentSlideIndex === 1 && styles.activeProgressBar,
-              ]}
-            />
-            <View
-              style={[
-                styles.progressBar,
-                currentSlideIndex === 2 && styles.activeProgressBar,
-              ]}
-            />
+            {ONBOARDING_SLIDES.map((slide, idx) => (
+              <View
+                key={slide.id}
+                style={[
+                  styles.progressBar,
+                  idx === currentSlideIndex && styles.activeProgressBar,
+                  idx < currentSlideIndex && styles.completedProgressBar,
+                ]}
+              />
+            ))}
           </View>
 
           {/* Skip Button */}
@@ -119,15 +185,25 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
           </TouchableOpacity>
         </View>
 
-        {/* Central Mockup / Illustration Area */}
-        <View style={styles.heroContainer}>
+        {/* Central Mockup / Illustration Area with Slide & Spring Animation */}
+        <Animated.View
+          style={[
+            styles.heroContainer,
+            {
+              opacity: contentFadeAnim,
+              transform: [
+                { translateX: contentTranslateX },
+                { scale: heroScaleAnim },
+              ],
+            },
+          ]}
+        >
           <Image
-            key={currentSlide.id}
             source={currentSlide.image}
             style={styles.heroImage}
             resizeMode="contain"
           />
-          {/* Seamless Bottom Gradient Fade matching the active background */}
+          {/* Seamless Bottom Gradient Fade */}
           <LinearGradient
             colors={
               currentSlideIndex === 0
@@ -138,27 +214,39 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
             style={styles.heroBottomGradient}
             pointerEvents="none"
           />
-        </View>
+        </Animated.View>
 
         {/* Bottom Content & CTA Section */}
         <View style={[styles.bottomSection, { paddingHorizontal: horizontalPadding }]}>
-          <View style={styles.textSection}>
+          <Animated.View
+            style={[
+              styles.textSection,
+              {
+                opacity: contentFadeAnim,
+                transform: [{ translateX: contentTranslateX }],
+              },
+            ]}
+          >
             <Text style={[styles.title, isSmallScreen && { fontSize: 28, lineHeight: 34 }]}>
               {currentSlide.title}
             </Text>
             <Text style={[styles.subtitle, isSmallScreen && { fontSize: 14.5, lineHeight: 21 }]}>
               {currentSlide.subtitle}
             </Text>
-          </View>
+          </Animated.View>
 
-          {/* Next Button */}
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={handleNext}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.nextButtonText}>Next</Text>
-          </TouchableOpacity>
+          {/* Animated Next Button */}
+          <Animated.View style={{ transform: [{ scale: btnScaleAnim }] }}>
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={handleNext}
+              activeOpacity={0.88}
+            >
+              <Text style={styles.nextButtonText}>
+                {isLastSlide ? 'Get Started' : 'Next'}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </SafeAreaView>
     </View>
@@ -205,6 +293,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#DCDCE2',
   },
   activeProgressBar: {
+    backgroundColor: '#1A1A1A',
+    width: 34,
+  },
+  completedProgressBar: {
     backgroundColor: '#6B6B70',
   },
   skipButton: {
@@ -264,6 +356,11 @@ const styles = StyleSheet.create({
     borderRadius: 31,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
   },
   nextButtonText: {
     color: '#FFFFFF',
