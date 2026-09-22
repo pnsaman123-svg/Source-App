@@ -144,10 +144,10 @@ export const ConfirmLocationScreen: React.FC<ConfirmLocationScreenProps> = ({
 
   return (
     <View style={styles.root}>
-      {/* Grayscale Architectural Map Background Matching Figma Node 2021:469 */}
+      {/* Clean Signature Background Gradient */}
       <Image
-        source={require('../../assets/images/map-bg.png')}
-        style={styles.mapBackground}
+        source={require('../../assets/images/bg-gradient.png')}
+        style={StyleSheet.absoluteFill}
         resizeMode="cover"
       />
 
@@ -246,11 +246,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#F5F5F7',
-  },
-  mapBackground: {
-    ...StyleSheet.absoluteFill,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
   },
   safeArea: {
     flex: 1,
