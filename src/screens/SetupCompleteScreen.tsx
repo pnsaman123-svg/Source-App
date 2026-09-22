@@ -4,12 +4,16 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Image,
   Animated,
   Easing,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useResponsive } from '../utils/responsive';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface SetupCompleteScreenProps {
   onFinish: () => void;
@@ -20,75 +24,160 @@ export const SetupCompleteScreen: React.FC<SetupCompleteScreenProps> = ({
 }) => {
   const { horizontalPadding, isSmallScreen } = useResponsive();
 
-  const scaleAnim = useRef(new Animated.Value(0.4)).current;
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
-  const glowAnim = useRef(new Animated.Value(1)).current;
+  const pulse1Anim = useRef(new Animated.Value(0.6)).current;
+  const pulse2Anim = useRef(new Animated.Value(0.6)).current;
+  const pulseOpacity1 = useRef(new Animated.Value(0.7)).current;
+  const pulseOpacity2 = useRef(new Animated.Value(0.5)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Pop in checkmark
+    // Entrance animation for inverter
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 1,
-        friction: 5,
-        tension: 80,
+        friction: 6,
+        tension: 70,
         useNativeDriver: true,
       }),
       Animated.timing(opacityAnim, {
         toValue: 1,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Gentle glow pulsing
-    const glowLoop = Animated.loop(
+    // Gentle floating breathing animation
+    Animated.loop(
       Animated.sequence([
-        Animated.timing(glowAnim, {
-          toValue: 1.15,
-          duration: 1500,
+        Animated.timing(floatAnim, {
+          toValue: -6,
+          duration: 2000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(glowAnim, {
-          toValue: 1.0,
-          duration: 1500,
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 2000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
       ])
-    );
-    glowLoop.start();
+    ).start();
 
-    return () => glowLoop.stop();
+    // Concentric Green Pulse Effect
+    const pulse1Loop = Animated.loop(
+      Animated.parallel([
+        Animated.timing(pulse1Anim, {
+          toValue: 1.5,
+          duration: 2400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.sequence([
+          Animated.timing(pulseOpacity1, {
+            toValue: 0.5,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseOpacity1, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ]),
+      ])
+    );
+
+    const pulse2Loop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(1000),
+        Animated.parallel([
+          Animated.timing(pulse2Anim, {
+            toValue: 1.65,
+            duration: 2400,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.sequence([
+            Animated.timing(pulseOpacity2, {
+              toValue: 0.4,
+              duration: 400,
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseOpacity2, {
+              toValue: 0,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+          ]),
+        ]),
+      ])
+    );
+
+    pulse1Loop.start();
+    pulse2Loop.start();
+
+    return () => {
+      pulse1Loop.stop();
+      pulse2Loop.stop();
+    };
   }, []);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
       <View style={styles.topSpacer} />
 
-      {/* Centered Success State (Figma Node 2273:13020) */}
+      {/* Centered Inverter with Green Pulse Effect */}
       <View style={[styles.centerContainer, { paddingHorizontal: horizontalPadding }]}>
-        {/* Glowing Green Layer */}
+        {/* Pulse Waves Layer 2 */}
         <Animated.View
           style={[
-            styles.glowContainer,
-            { transform: [{ scale: glowAnim }] },
-          ]}
-        >
-          <View style={styles.outerGlow} />
-        </Animated.View>
-
-        {/* Checkmark Circle Icon */}
-        <Animated.View
-          style={[
-            styles.checkmarkCircle,
+            styles.pulseWaveOuter,
             {
-              transform: [{ scale: scaleAnim }],
+              transform: [{ scale: pulse2Anim }],
+              opacity: pulseOpacity2,
+            },
+          ]}
+        />
+
+        {/* Pulse Waves Layer 1 */}
+        <Animated.View
+          style={[
+            styles.pulseWaveInner,
+            {
+              transform: [{ scale: pulse1Anim }],
+              opacity: pulseOpacity1,
+            },
+          ]}
+        />
+
+        {/* Ambient Core Green Glow */}
+        <View style={styles.coreGlow} />
+
+        {/* Inverter Image Container with Floating and Entrance Animation */}
+        <Animated.View
+          style={[
+            styles.inverterContainer,
+            {
+              transform: [{ scale: scaleAnim }, { translateY: floatAnim }],
               opacity: opacityAnim,
             },
           ]}
         >
-          <Ionicons name="checkmark" size={54} color="#FFFFFF" />
+          <Image
+            source={require('../../assets/images/source-inverter-connected.png')}
+            style={styles.inverterImage}
+            resizeMode="contain"
+          />
+
+          {/* Connected Badge Overlay */}
+          <View style={styles.connectedBadge}>
+            <View style={styles.statusDot} />
+            <Text style={styles.connectedBadgeText}>Connected</Text>
+            <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+          </View>
         </Animated.View>
 
         {/* Text Group */}
@@ -123,42 +212,93 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topSpacer: {
-    height: 40,
+    height: 20,
   },
   centerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
-  glowContainer: {
+  pulseWaveOuter: {
     position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    top: -15,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(16, 185, 129, 0.18)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(16, 185, 129, 0.4)',
+    top: 10,
   },
-  outerGlow: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  pulseWaveInner: {
+    position: 'absolute',
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: 'rgba(16, 185, 129, 0.22)',
+    borderWidth: 2,
+    borderColor: 'rgba(16, 185, 129, 0.55)',
+    top: 30,
   },
-  checkmarkCircle: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    backgroundColor: '#10B981',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 32,
+  coreGlow: {
+    position: 'absolute',
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+    top: 55,
     shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 28,
+  },
+  inverterContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+    position: 'relative',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  inverterImage: {
+    width: 170,
+    height: 230,
+  },
+  connectedBadge: {
+    position: 'absolute',
+    bottom: -12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  connectedBadgeText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1A1A1A',
   },
   textGroup: {
     alignItems: 'center',
     paddingHorizontal: 20,
+    marginTop: 8,
   },
   title: {
     fontSize: 26,
@@ -174,7 +314,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: '#747474',
     textAlign: 'center',
-    maxWidth: 280,
+    maxWidth: 290,
   },
   bottomContainer: {
     paddingBottom: 28,
