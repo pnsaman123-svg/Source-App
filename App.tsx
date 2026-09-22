@@ -13,6 +13,7 @@ import { LoadConsumptionScreen } from './src/screens/LoadConsumptionScreen';
 import { EarningsScreen } from './src/screens/EarningsScreen';
 import { DeviceManagementScreen } from './src/screens/DeviceManagementScreen';
 import { StartupSplashScreen } from './src/screens/StartupSplashScreen';
+import { LoginScreen } from './src/screens/LoginScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
@@ -28,6 +29,7 @@ type HomeSubScreen =
 
 export default function App() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [serviceSubScreen, setServiceSubScreen] = useState<ServiceSubScreen>('menu');
   const [homeSubScreen, setHomeSubScreen] = useState<HomeSubScreen>('main');
@@ -38,6 +40,11 @@ export default function App() {
   };
 
   const renderActiveScreen = () => {
+    // Show Login Screen if not authenticated
+    if (!isAuthenticated) {
+      return <LoginScreen onLoginSuccess={() => setIsAuthenticated(true)} />;
+    }
+
     switch (activeTab) {
       case 'home':
         if (homeSubScreen === 'batterySoc') {
@@ -127,7 +134,16 @@ export default function App() {
           />
         );
       case 'profile':
-        return <ProfileScreen onBack={() => setActiveTab('home')} />;
+        return (
+          <ProfileScreen
+            onBack={() => setActiveTab('home')}
+            onLogOut={() => {
+              setIsAuthenticated(false);
+              setActiveTab('home');
+              setHomeSubScreen('main');
+            }}
+          />
+        );
       default:
         return <HomeScreen />;
     }
@@ -144,7 +160,7 @@ export default function App() {
         </View>
 
         {/* Floating Dark Bottom Navigation Bar */}
-        {!showSplash && (
+        {isAuthenticated && !showSplash && (
           <BottomTabBar
             activeTab={activeTab}
             onSelectTab={(tab) => {

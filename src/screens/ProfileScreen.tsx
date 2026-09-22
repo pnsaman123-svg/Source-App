@@ -14,9 +14,10 @@ import { Colors } from '../theme/colors';
 
 interface ProfileScreenProps {
   onBack?: () => void;
+  onLogOut?: () => void;
 }
 
-export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack, onLogOut }) => {
   const menuItems = [
     {
       title: 'Manage profile',
@@ -39,7 +40,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ onBack }) => {
       action: () =>
         Alert.alert('Log Out', 'Are you sure you want to log out?', [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Log Out', style: 'destructive' },
+          { text: 'Log Out', style: 'destructive', onPress: onLogOut },
         ]),
     },
     {
