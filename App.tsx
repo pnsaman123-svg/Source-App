@@ -14,10 +14,12 @@ import { EarningsScreen } from './src/screens/EarningsScreen';
 import { DeviceManagementScreen } from './src/screens/DeviceManagementScreen';
 import { StartupSplashScreen } from './src/screens/StartupSplashScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
+import { ConfirmLocationScreen } from './src/screens/ConfirmLocationScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
 
+type AuthStep = 'login' | 'location' | 'authenticated';
 type ServiceSubScreen = 'menu' | 'general' | 'inverter' | 'firmware' | 'device';
 type HomeSubScreen =
   | 'main'
@@ -29,7 +31,7 @@ type HomeSubScreen =
 
 export default function App() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authStep, setAuthStep] = useState<AuthStep>('login');
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [serviceSubScreen, setServiceSubScreen] = useState<ServiceSubScreen>('menu');
   const [homeSubScreen, setHomeSubScreen] = useState<HomeSubScreen>('main');
@@ -40,9 +42,19 @@ export default function App() {
   };
 
   const renderActiveScreen = () => {
-    // Show Login Screen if not authenticated
-    if (!isAuthenticated) {
-      return <LoginScreen onLoginSuccess={() => setIsAuthenticated(true)} />;
+    // 1. Show Login Screen if on login step
+    if (authStep === 'login') {
+      return <LoginScreen onLoginSuccess={() => setAuthStep('location')} />;
+    }
+
+    // 2. Show Confirm Location Screen after sign in
+    if (authStep === 'location') {
+      return (
+        <ConfirmLocationScreen
+          onConfirm={() => setAuthStep('authenticated')}
+          onBack={() => setAuthStep('login')}
+        />
+      );
     }
 
     switch (activeTab) {
@@ -138,7 +150,7 @@ export default function App() {
           <ProfileScreen
             onBack={() => setActiveTab('home')}
             onLogOut={() => {
-              setIsAuthenticated(false);
+              setAuthStep('login');
               setActiveTab('home');
               setHomeSubScreen('main');
             }}
@@ -160,7 +172,7 @@ export default function App() {
         </View>
 
         {/* Floating Dark Bottom Navigation Bar */}
-        {isAuthenticated && !showSplash && (
+        {authStep === 'authenticated' && !showSplash && (
           <BottomTabBar
             activeTab={activeTab}
             onSelectTab={(tab) => {
