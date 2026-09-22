@@ -13,13 +13,14 @@ import { LoadConsumptionScreen } from './src/screens/LoadConsumptionScreen';
 import { EarningsScreen } from './src/screens/EarningsScreen';
 import { DeviceManagementScreen } from './src/screens/DeviceManagementScreen';
 import { StartupSplashScreen } from './src/screens/StartupSplashScreen';
+import { OnboardingWelcomeScreen } from './src/screens/OnboardingWelcomeScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { ConfirmLocationScreen } from './src/screens/ConfirmLocationScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
 
-type AuthStep = 'login' | 'location' | 'authenticated';
+type AuthStep = 'onboarding' | 'login' | 'location' | 'authenticated';
 type ServiceSubScreen = 'menu' | 'general' | 'inverter' | 'firmware' | 'device';
 type HomeSubScreen =
   | 'main'
@@ -31,7 +32,7 @@ type HomeSubScreen =
 
 export default function App() {
   const [showSplash, setShowSplash] = useState<boolean>(true);
-  const [authStep, setAuthStep] = useState<AuthStep>('login');
+  const [authStep, setAuthStep] = useState<AuthStep>('onboarding');
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [serviceSubScreen, setServiceSubScreen] = useState<ServiceSubScreen>('menu');
   const [homeSubScreen, setHomeSubScreen] = useState<HomeSubScreen>('main');
@@ -42,12 +43,22 @@ export default function App() {
   };
 
   const renderActiveScreen = () => {
-    // 1. Show Login Screen if on login step
+    // 1. Show Welcome Onboarding Splash Screen (Figma 2919:2366)
+    if (authStep === 'onboarding') {
+      return (
+        <OnboardingWelcomeScreen
+          onNext={() => setAuthStep('login')}
+          onSkip={() => setAuthStep('login')}
+        />
+      );
+    }
+
+    // 2. Show Login Screen if on login step
     if (authStep === 'login') {
       return <LoginScreen onLoginSuccess={() => setAuthStep('location')} />;
     }
 
-    // 2. Show Confirm Location Screen after sign in
+    // 3. Show Confirm Location Screen after sign in
     if (authStep === 'location') {
       return (
         <ConfirmLocationScreen
