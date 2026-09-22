@@ -24,7 +24,7 @@ interface LoginScreenProps {
 
 // Crisp Google "G" SVG Logo
 const GoogleLogo = () => (
-  <Svg width={20} height={20} viewBox="0 0 24 24">
+  <Svg width={22} height={22} viewBox="0 0 24 24">
     <Path
       fill="#4285F4"
       d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
@@ -58,7 +58,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setTimeout(() => {
       setIsLoading(false);
       onLoginSuccess();
-    }, 450);
+    }, 400);
   };
 
   const handleGoogleSignIn = () => {
@@ -67,7 +67,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setTimeout(() => {
       setIsLoading(false);
       onLoginSuccess();
-    }, 450);
+    }, 400);
   };
 
   return (
@@ -95,10 +95,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             >
               {/* Header Title & Subtitle Matching Figma Node 1986:339 */}
               <View style={styles.headerSection}>
-                <Text style={[styles.title, isSmallScreen && { fontSize: 28, lineHeight: 34 }]}>
+                <Text style={[styles.title, isSmallScreen && { fontSize: 30, lineHeight: 38 }]}>
                   Hey,{'\n'}Welcome Back
                 </Text>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.subtitle, isSmallScreen && { fontSize: 14.5, lineHeight: 21 }]}>
                   It’s good to see you again! Sign in to continue your journey with us!
                 </Text>
               </View>
@@ -139,7 +139,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   >
                     <Feather
                       name={showPassword ? 'eye' : 'eye-off'}
-                      size={20}
+                      size={22}
                       color="#8E8E93"
                     />
                   </TouchableOpacity>
@@ -149,7 +149,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 <TouchableOpacity
                   style={styles.forgetPasswordContainer}
                   onPress={() => {
-                    // Dummy forgot password response
                     alert('Password reset link sent to your email.');
                   }}
                   activeOpacity={0.7}
@@ -157,7 +156,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   <Text style={styles.forgetPasswordText}>Forget password?</Text>
                 </TouchableOpacity>
 
-                {/* Sign In Button */}
+                {/* Sign In CTA Button */}
                 <TouchableOpacity
                   style={[styles.signInButton, isLoading && { opacity: 0.85 }]}
                   onPress={handleSignIn}
@@ -178,7 +177,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   <View style={styles.dividerLine} />
                 </View>
 
-                {/* Continue with Google Button */}
+                {/* Continue with Google CTA Button */}
                 <TouchableOpacity
                   style={styles.googleButton}
                   onPress={handleGoogleSignIn}
@@ -223,47 +222,47 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingTop: 40,
-    paddingBottom: 24,
+    paddingTop: 44,
+    paddingBottom: 28,
     justifyContent: 'space-between',
   },
   headerSection: {
     marginTop: 20,
-    marginBottom: 32,
+    marginBottom: 36,
   },
   title: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 36,
+    lineHeight: 44,
     fontWeight: '800',
     color: '#1A1A1A',
-    letterSpacing: -0.5,
-    marginBottom: 12,
+    letterSpacing: -0.6,
+    marginBottom: 14,
   },
   subtitle: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: '#737373',
+    fontSize: 15.5,
+    lineHeight: 23,
+    color: '#6B6B70',
     fontWeight: '400',
-    maxWidth: '92%',
+    maxWidth: '94%',
   },
   formSection: {
     width: '100%',
   },
   inputCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    height: 58,
-    paddingHorizontal: 20,
+    borderRadius: 22,
+    height: 64,
+    paddingHorizontal: 22,
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
   textInput: {
-    fontSize: 15,
+    fontSize: 16.5,
     color: '#1A1A1A',
     fontWeight: '500',
     height: '100%',
@@ -275,85 +274,85 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-    paddingRight: 10,
+    paddingRight: 12,
   },
   eyeButton: {
-    padding: 4,
+    padding: 6,
     justifyContent: 'center',
     alignItems: 'center',
   },
   forgetPasswordContainer: {
     alignSelf: 'flex-end',
-    marginTop: 2,
-    marginBottom: 28,
+    marginTop: 4,
+    marginBottom: 32,
   },
   forgetPasswordText: {
-    fontSize: 13,
+    fontSize: 14.5,
     fontWeight: '600',
     color: '#1A1A1A',
   },
   signInButton: {
     backgroundColor: '#1A1A1A',
-    height: 56,
-    borderRadius: 28,
+    height: 62,
+    borderRadius: 31,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 4,
   },
   signInButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 17.5,
     fontWeight: '700',
     letterSpacing: -0.2,
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 26,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E5',
+    backgroundColor: '#DCDCE2',
   },
   dividerText: {
     paddingHorizontal: 16,
-    fontSize: 13,
+    fontSize: 14.5,
     color: '#8E8E93',
     fontWeight: '500',
   },
   googleButton: {
     backgroundColor: '#FFFFFF',
-    height: 56,
-    borderRadius: 28,
+    height: 62,
+    borderRadius: 31,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
     borderWidth: 0.5,
-    borderColor: '#ECECEE',
+    borderColor: '#E2E2E6',
   },
   googleButtonText: {
     color: '#1A1A1A',
-    fontSize: 15,
+    fontSize: 16.5,
     fontWeight: '600',
     marginLeft: 12,
   },
   footerSection: {
     alignItems: 'center',
-    marginTop: 32,
-    marginBottom: 12,
+    marginTop: 36,
+    marginBottom: 16,
   },
   footerText: {
-    fontSize: 14,
+    fontSize: 15.5,
     color: '#8E8E93',
     fontWeight: '400',
   },
