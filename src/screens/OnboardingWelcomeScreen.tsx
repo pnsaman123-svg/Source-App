@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useResponsive } from '../utils/responsive';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -59,19 +60,32 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
   };
 
   return (
-    <View style={styles.root}>
-      {/* Clean Background Gradient */}
-      <Image
-        source={require('../../assets/images/bg-gradient.png')}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
-      />
+    <View style={[styles.root, currentSlideIndex > 0 && styles.rootFlat]}>
+      {/* Clean Background Gradient Only on Slide 1 */}
+      {currentSlideIndex === 0 && (
+        <Image
+          source={require('../../assets/images/bg-gradient.png')}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+        />
+      )}
 
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
-        {/* Top Header: 3-Segment Indicator + Skip Button */}
+        {/* Top Header: Back Button (from 2nd splash) + 3-Segment Indicator + Skip Button */}
         <View style={[styles.header, { paddingHorizontal: horizontalPadding }]}>
-          {/* Symmetrical placeholder for centering indicators */}
-          <View style={styles.headerSpacer} />
+          {/* Back Button from 2nd Splash, or Symmetrical Spacer on 1st Splash */}
+          {currentSlideIndex > 0 ? (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => setCurrentSlideIndex((prev) => Math.max(0, prev - 1))}
+              activeOpacity={0.7}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Ionicons name="chevron-back" size={24} color="#1A1A1A" />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.headerSpacer} />
+          )}
 
           {/* 3 Progress Bars */}
           <View style={styles.progressContainer}>
@@ -113,9 +127,13 @@ export const OnboardingWelcomeScreen: React.FC<OnboardingWelcomeScreenProps> = (
             style={styles.heroImage}
             resizeMode="contain"
           />
-          {/* Seamless Bottom Gradient Fade into Screen Background */}
+          {/* Seamless Bottom Gradient Fade matching the active background */}
           <LinearGradient
-            colors={['rgba(232, 232, 237, 0)', 'rgba(232, 232, 237, 0.4)', 'rgba(232, 232, 237, 0.85)', '#E8E8ED']}
+            colors={
+              currentSlideIndex === 0
+                ? ['rgba(232, 232, 237, 0)', 'rgba(232, 232, 237, 0.4)', 'rgba(232, 232, 237, 0.85)', '#E8E8ED']
+                : ['rgba(242, 242, 247, 0)', 'rgba(242, 242, 247, 0.4)', 'rgba(242, 242, 247, 0.85)', '#F2F2F7']
+            }
             locations={[0, 0.4, 0.75, 1]}
             style={styles.heroBottomGradient}
             pointerEvents="none"
@@ -152,6 +170,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#E8E8ED',
   },
+  rootFlat: {
+    backgroundColor: '#F2F2F7',
+  },
   safeArea: {
     flex: 1,
     justifyContent: 'space-between',
@@ -162,6 +183,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 8,
     paddingBottom: 12,
+  },
+  backButton: {
+    width: 48,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    paddingVertical: 4,
   },
   headerSpacer: {
     width: 48,
@@ -183,6 +210,7 @@ const styles = StyleSheet.create({
   skipButton: {
     width: 48,
     alignItems: 'flex-end',
+    justifyContent: 'center',
     paddingVertical: 4,
   },
   skipText: {
