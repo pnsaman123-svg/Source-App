@@ -12,6 +12,7 @@ import { SourceMonitoringScreen } from './src/screens/SourceMonitoringScreen';
 import { LoadConsumptionScreen } from './src/screens/LoadConsumptionScreen';
 import { EarningsScreen } from './src/screens/EarningsScreen';
 import { DeviceManagementScreen } from './src/screens/DeviceManagementScreen';
+import { StartupSplashScreen } from './src/screens/StartupSplashScreen';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { TabType } from './src/types/energy';
 import { Colors } from './src/theme/colors';
@@ -26,6 +27,7 @@ type HomeSubScreen =
   | 'notifications';
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [serviceSubScreen, setServiceSubScreen] = useState<ServiceSubScreen>('menu');
   const [homeSubScreen, setHomeSubScreen] = useState<HomeSubScreen>('main');
@@ -142,17 +144,24 @@ export default function App() {
         </View>
 
         {/* Floating Dark Bottom Navigation Bar */}
-        <BottomTabBar
-          activeTab={activeTab}
-          onSelectTab={(tab) => {
-            if (tab === 'home') {
-              setHomeSubScreen('main');
-            } else if (tab === 'service') {
-              setServiceSubScreen('menu');
-            }
-            setActiveTab(tab);
-          }}
-        />
+        {!showSplash && (
+          <BottomTabBar
+            activeTab={activeTab}
+            onSelectTab={(tab) => {
+              if (tab === 'home') {
+                setHomeSubScreen('main');
+              } else if (tab === 'service') {
+                setServiceSubScreen('menu');
+              }
+              setActiveTab(tab);
+            }}
+          />
+        )}
+
+        {/* Startup Splash Animation Overlay */}
+        {showSplash && (
+          <StartupSplashScreen onFinish={() => setShowSplash(false)} />
+        )}
       </View>
     </SafeAreaProvider>
   );
